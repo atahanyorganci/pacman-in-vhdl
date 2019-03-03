@@ -1,0 +1,83 @@
+Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.
+------------------------------------------------------------------------------------
+| Tool Version : Vivado v.2018.2 (win64) Build 2258646 Thu Jun 14 20:03:12 MDT 2018
+| Date         : Mon Dec 24 20:10:20 2018
+| Host         : AtahanPC running 64-bit major release  (build 9200)
+| Command      : report_control_sets -verbose -file main_control_sets_placed.rpt
+| Design       : main
+| Device       : xc7a35t
+------------------------------------------------------------------------------------
+
+Control Set Information
+
+Table of Contents
+-----------------
+1. Summary
+2. Histogram
+3. Flip-Flop Distribution
+4. Detailed Control Set Information
+
+1. Summary
+----------
+
++----------------------------------------------------------+-------+
+|                          Status                          | Count |
++----------------------------------------------------------+-------+
+| Number of unique control sets                            |    16 |
+| Unused register locations in slices containing registers |    32 |
++----------------------------------------------------------+-------+
+
+
+2. Histogram
+------------
+
++--------+--------------+
+| Fanout | Control Sets |
++--------+--------------+
+|      2 |            2 |
+|     10 |            1 |
+|     12 |            2 |
+|    16+ |           11 |
++--------+--------------+
+
+
+3. Flip-Flop Distribution
+-------------------------
+
++--------------+-----------------------+------------------------+-----------------+--------------+
+| Clock Enable | Synchronous Set/Reset | Asynchronous Set/Reset | Total Registers | Total Slices |
++--------------+-----------------------+------------------------+-----------------+--------------+
+| No           | No                    | No                     |              60 |           22 |
+| No           | No                    | Yes                    |              94 |           17 |
+| No           | Yes                   | No                     |             126 |           16 |
+| Yes          | No                    | No                     |              12 |            2 |
+| Yes          | No                    | Yes                    |              64 |            7 |
+| Yes          | Yes                   | No                     |             396 |           48 |
++--------------+-----------------------+------------------------+-----------------+--------------+
+
+
+4. Detailed Control Set Information
+-----------------------------------
+
++------------------+----------------------------------------+------------------------------+------------------+----------------+
+|   Clock Signal   |              Enable Signal             |       Set/Reset Signal       | Slice Load Count | Bel Load Count |
++------------------+----------------------------------------+------------------------------+------------------+----------------+
+|  CLOCK_DIVIDER/Q |                                        |                              |                1 |              2 |
+| ~CLK25_BUFG      |                                        |                              |                1 |              2 |
+|  CLK_IBUF_BUFG   |                                        |                              |                4 |             10 |
+|  CLK_IBUF_BUFG   | SCORE_HANDLER/TEMP[5]_i_1_n_0          |                              |                2 |             12 |
+|  CLK25_BUFG      | VGA_DRIVER/currentScore0               | VGA_DRIVER/GHOST_RST         |                2 |             12 |
+|  CLK25_BUFG      |                                        |                              |               16 |             46 |
+|  CLK_IBUF_BUFG   |                                        | SSD_DRIVER/count[31]_i_1_n_0 |                8 |             62 |
+|  CLK_SLOW_BUFG   | CYAN_GHOST_HANDLER/tempV[0]_i_1__0_n_0 | VGA_DRIVER/GHOST_RST         |                8 |             64 |
+|  CLK_SLOW_BUFG   | CYAN_GHOST_HANDLER/tempH               | VGA_DRIVER/GHOST_RST         |                8 |             64 |
+|  CLK_SLOW_BUFG   | RED_GHOST_HANDLER/tempH                | VGA_DRIVER/GHOST_RST         |                8 |             64 |
+|  CLK_SLOW_BUFG   | RED_GHOST_HANDLER/tempV[0]_i_1_n_0     | VGA_DRIVER/GHOST_RST         |                8 |             64 |
+|  CLK_SLOW_BUFG   | USER_INPUT/playerV[31]_i_1_n_0         | VGA_DRIVER/GHOST_RST         |                8 |             64 |
+|  CLK_SLOW_BUFG   | USER_INPUT/playerH[31]_i_1_n_0         | VGA_DRIVER/GHOST_RST         |                6 |             64 |
+|  CLK_IBUF_BUFG   |                                        | CLOCK_DIVIDER/clear          |                8 |             64 |
+|  CLK25_BUFG      | VGA_DRIVER/vPos                        | VGA_DRIVER/GHOST_RST         |                7 |             64 |
+|  CLK25_BUFG      |                                        | VGA_DRIVER/GHOST_RST         |               17 |             94 |
++------------------+----------------------------------------+------------------------------+------------------+----------------+
+
+
