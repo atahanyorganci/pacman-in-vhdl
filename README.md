@@ -8,4 +8,4 @@ VHDL implementation of retro game Pacman. Developed for Xilinx development board
 - VGA, seven segment driver in VHDL.
 
 ## How to Install
-Only Vivado design tool is needed, [Vivado WebPack]() is avaliable for free in Xilinx store. Just, double click the .xpr file in root directory of the project and open with Vivado.
+Only Vivado design tool is needed, [Vivado WebPack](https://www.xilinx.com/products/design-tools/vivado/vivado-webpack.html) is avaliable for free in Xilinx store. Just, double click the .xpr file in root directory of the project and open with Vivado.
