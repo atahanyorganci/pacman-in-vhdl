@@ -36,17 +36,17 @@ component red_ghost is
 end component;
 
 component user_io is
-    Port ( LEFT : in STD_LOGIC;
-           UP : in STD_LOGIC;
-           DOWN : in STD_LOGIC;
-           RIGHT : in STD_LOGIC;
-           CLK : in std_logic;
-           RST : in std_logic;
+	Port ( LEFT : in STD_LOGIC;
+		   UP : in STD_LOGIC;
+		   DOWN : in STD_LOGIC;
+		   RIGHT : in STD_LOGIC;
+		   CLK : in std_logic;
+		   RST : in std_logic;
 		 PLAYER_H, PLAYER_V: out integer);
 end component;
 
 component VGA is
-    Port ( 
+	Port ( 
 			CLK : in  STD_LOGIC;
 			RESET : in STD_LOGIC;
 			PLAYER_H : in integer;
@@ -69,7 +69,7 @@ end component;
 component clk_div IS
 	PORT 
 	(
-		CLK    : IN std_logic; -- Clk 100MHz
+		CLK	: IN std_logic; -- Clk 100MHz
 		CLK25  : OUT std_logic;
 		CLK_SLOW : out std_logic
 	);
@@ -84,18 +84,18 @@ component cyan_ghost is
 end component;
 
 component score_ssd is
-    Port ( 
-    		 SCORE : in integer range 0 to 32;
-    		 HIGHSCORE: in integer range 0 to 32;
-           clock: in STD_LOGIC;
-           ANODE : out STD_LOGIC_VECTOR (3 downto 0);
-           CATHODE : out STD_LOGIC_VECTOR (6 downto 0));
+	Port ( 
+			 SCORE : in integer range 0 to 32;
+			 HIGHSCORE: in integer range 0 to 32;
+		   clock: in STD_LOGIC;
+		   ANODE : out STD_LOGIC_VECTOR (3 downto 0);
+		   CATHODE : out STD_LOGIC_VECTOR (6 downto 0));
 end component;
 
 component score_fsm is
-    Port ( CLK : in std_logic;
-    		 SCORE : in integer range 0 to 32;
-           HIGHSCORE : out integer range 0 to 32);
+	Port ( CLK : in std_logic;
+			 SCORE : in integer range 0 to 32;
+		   HIGHSCORE : out integer range 0 to 32);
 end component;
 
 signal CLK25 : std_logic := '0';

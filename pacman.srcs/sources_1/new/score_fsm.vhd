@@ -10,9 +10,9 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity score_fsm is
-    Port ( CLK : in std_logic;
-    		 SCORE : in integer range 0 to 32;
-           HIGHSCORE : out integer range 0 to 32);
+	Port ( CLK : in std_logic;
+			 SCORE : in integer range 0 to 32;
+		   HIGHSCORE : out integer range 0 to 32);
 end score_fsm;
 
 architecture Behavioral of score_fsm is

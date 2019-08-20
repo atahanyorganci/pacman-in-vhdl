@@ -5,7 +5,7 @@ USE work.pacage.ALL;
 ENTITY clk_div IS
 	PORT 
 	(
-		CLK    : IN std_logic; -- Clk 100MHz
+		CLK	: IN std_logic; -- Clk 100MHz
 		CLK25  : OUT std_logic;
 		CLK_SLOW : out std_logic
 	);

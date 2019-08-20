@@ -9,12 +9,12 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity score_ssd is
-    Port ( 
-    		 SCORE : in integer range 0 to 32;
-    		 HIGHSCORE: in integer range 0 to 32;
-           clock: in STD_LOGIC;
-           ANODE : out STD_LOGIC_VECTOR (3 downto 0);
-           CATHODE : out STD_LOGIC_VECTOR (6 downto 0));
+Port ( 
+		SCORE : in integer range 0 to 32;
+		HIGHSCORE: in integer range 0 to 32;
+		clock: in STD_LOGIC;
+		ANODE : out STD_LOGIC_VECTOR (3 downto 0);
+		CATHODE : out STD_LOGIC_VECTOR (6 downto 0));
 end score_ssd;
 
 architecture Behavioral of score_ssd is
@@ -22,6 +22,7 @@ architecture Behavioral of score_ssd is
 	signal TEMP : STD_LOGIC_VECTOR(1 downto 0); -- Intermediate two bit clock signal for inverted decoder
 	signal MUX_OUT : integer range 0 to 32 := 0; -- Multiplexer output
 begin
+
 -- Clock signal for the SSD
 SSD_CLOCK : process (clock)
 variable  count : integer := 0;
@@ -41,6 +42,7 @@ begin
 		end if;
 	end if;
 end process;
+
 -- Decode TEMP signal for asserting the anodes
 INVERTED_DECODER : process( TEMP )
 begin
@@ -52,6 +54,7 @@ begin
 		when others => ANODE <= "0000";
 	end case;
 end process;
+
 -- Encoder for the cathodes
 DECIMAL_TO_SSD : process (MUX_OUT) is
 begin
@@ -69,6 +72,7 @@ begin
 		when others => CATHODE <= "0000000"; -- Dont cause implied memory
 	end case;
 end process;
+
 -- Multiplexer for the the display
 MUX : process (TEMP, SCORE, HIGHSCORE) is
 begin
@@ -80,5 +84,5 @@ begin
 		when others => MUX_OUT <= 0;
 	end case;
 end process;
-end Behavioral;
 
+end Behavioral;
