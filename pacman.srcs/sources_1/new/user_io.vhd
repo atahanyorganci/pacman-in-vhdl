@@ -10,7 +10,7 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity user_io is
-    Port ( 
+	Port ( 
 			LEFT : in STD_LOGIC;
 			UP : in STD_LOGIC;
 			DOWN : in STD_LOGIC;
