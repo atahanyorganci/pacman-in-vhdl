@@ -54,7 +54,7 @@ architecture Behavioral of VGA is
 -- VGA Draw Positions
 	signal hPos : integer := 0; -- Horizontal Draw
 	signal vPos : integer := 0; -- Vertical Draw
-	signal videoOn : std_logic := '0';
+	signal s_videoOn : std_logic := '0';
 -- DRAW signals for entities
 	signal MARGIN : STD_LOGIC := '0'; -- Draw signal for margins
 	signal s_Rectangle : std_logic_vector (9 downto 0) := "0000000000"; -- Draw signal for rectangle obstacles
@@ -129,25 +129,25 @@ end process;
 videoOn : process(CLK, hPos, vPos, RST)
 begin
 	if(RST = '1')then
-		videoOn <= '0';
+		s_videoOn <= '0';
 	elsif(rising_edge(CLK))then
 		if(hPos <= HD and vPos <= VD)then
-			videoOn <= '1';
+			s_videoOn <= '1';
 		else
-			videoOn <= '0';
+			s_videoOn <= '0';
 		end if;
 	end if;
 end process;
 
 -- Draw
-draw : process(CLK, RST, hPos, vPos, videoOn)
+draw : process(CLK, RST, hPos, vPos, s_videoOn)
 begin
 	if(RST = '1')then
 		VGA_RED   <= "0000";
 		VGA_GREEN <= "0000";
 		VGA_BLUE   <= "0000";
 	elsif(rising_edge(CLK))then
-		if(videoOn = '1')then
+		if(s_videoOn = '1')then
 			if(MARGIN = '1')then
 				VGA_RED <= "0000";
 				VGA_GREEN <= "0000";
@@ -189,9 +189,9 @@ end process;
 detectEat : process(CLK, PLAYER, FOOD, RST)
 begin
 	if (rising_edge(CLK)) then
-		if (RST = '0' AND PLAYER = '1') then
+		if (RST = '0') then
 			for i in 0 to 21 loop
-				if(FOOD(i) = '1') then
+				if(FOOD(i) = '1' AND PLAYER = '1') then
 					enableFood(i) <= '0';
 					currentScore <= currentScore + 1;
 				end if;

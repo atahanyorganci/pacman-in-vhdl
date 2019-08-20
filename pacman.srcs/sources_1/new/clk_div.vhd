@@ -12,10 +12,12 @@ ENTITY clk_div IS
 END clk_div;
 
 ARCHITECTURE Behavioral OF clk_div IS
+
 	SIGNAL Q : std_logic := '0';
 	SIGNAL D : std_logic := '0';
 	SIGNAL S : std_logic := '0';
 	constant GAME_SPEED : integer := 500000;
+
 BEGIN
 
 	clk_div50 : PROCESS (clk)
@@ -45,5 +47,5 @@ BEGIN
 		end if;
 	end process;
 	CLK_SLOW <= S;
-	
+
 END Behavioral;
