@@ -103,7 +103,7 @@ begin
 	if (RST = '1') then
 		VGA_HS <= '0';
 	elsif(rising_edge(CLK))then
-		if((hPos <= (HD + HFP)) OR (hPos > HD + HFP + HSP))then
+		if((hPos <= HD + HFP) OR (hPos > HD + HFP + HSP))then
 			VGA_HS <= '1';
 		else
 			VGA_HS <= '0';
@@ -117,7 +117,7 @@ begin
 	if(RST = '1')then
 		VGA_VS <= '0';
 	elsif(rising_edge(CLK))then
-		if((vPos <= (VD + VFP)) OR (vPos > VD + VFP + VSP))then
+		if((vPos <= VD + VFP) OR (vPos > VD + VFP + VSP))then
 			VGA_VS <= '1';
 		else
 			VGA_VS <= '0';
@@ -126,12 +126,12 @@ begin
 end process;
 
 -- Video On
-videoOn : process(CLK, hPos, vPos, RST)
+videoOn : process(CLK, RST)
 begin
-	if(RST = '1')then
+	if (RST = '1') then
 		s_videoOn <= '0';
-	elsif(rising_edge(CLK))then
-		if(hPos <= HD and vPos <= VD)then
+	elsif (rising_edge(CLK)) then
+		if (hPos <= HD and vPos <= VD) then
 			s_videoOn <= '1';
 		else
 			s_videoOn <= '0';
@@ -140,7 +140,7 @@ begin
 end process;
 
 -- Draw
-draw : process(CLK, RST, hPos, vPos, s_videoOn)
+draw : process(CLK, RST)
 begin
 	if(RST = '1')then
 		VGA_RED   <= "0000";
@@ -178,65 +178,65 @@ begin
 				VGA_BLUE <= "0000";
 			end if;
 		else
-			VGA_RED   <= "0000";
+			VGA_RED <= "0000";
 			VGA_GREEN <= "0000";
-			VGA_BLUE   <= "0000";
+			VGA_BLUE <= "0000";
 		end if;
 	end if;
 end process;
 
 -- Detect Eat
-detectEat : process(CLK, PLAYER, FOOD, RST)
+detectEat : process(CLK, RST)
 begin
-	if (rising_edge(CLK)) then
-		if (RST = '0') then
+	if (RST = '1') then
+		currentScore <= 0;
+		enableFood <= "1111111111111111111111";
+	else
+		if (rising_edge(CLK)) then
 			for i in 0 to 21 loop
 				if(FOOD(i) = '1' AND PLAYER = '1') then
 					enableFood(i) <= '0';
 					currentScore <= currentScore + 1;
 				end if;
 			end loop;
-		else
-			currentScore <= 0;
-			enableFood <= "1111111111111111111111";
 		end if;
 	end if;
 end process;
 
 -- Detect Spook
-detectSpook : process(CLK, PLAYER, FOOD, RST)
+detectSpook : process(CLK, RST)
 begin
-	if (rising_edge(CLK)) then
-		if (RST = '0') then
-			if(PLAYER = '1' AND (CYAN_GHOST = '1' OR RED_GHOST = '1')) then
+	if (RST = '0') then
+		if (rising_edge(CLK)) then
+			if (PLAYER = '1' AND (CYAN_GHOST = '1' OR RED_GHOST = '1')) then
 				ALIVE <= '0';
 			end if;
-		else
-			ALIVE <= '1';
 		end if;
+	else
+		ALIVE <= '1';
 	end if;
 end process;
 
 -- Game Check
 gameCheck : process(CLK, RST)
 begin
-if (falling_edge(CLK)) then
 	if (RST = '0') then
-		if (enableFood = "0000000000000000000000" or ALIVE = '0' or RESET = '1') then
-			RST <= '1';
-			PLAYER_RST <= '1';
-			GHOST_RST <= '1';
-		else 
-			RST <= '0';
-			PLAYER_RST <= '0';
-			GHOST_RST <= '0';
+		if (falling_edge(CLK)) then
+			if (enableFood = "0000000000000000000000" or ALIVE = '0' or RESET = '1') then
+				RST <= '1';
+				PLAYER_RST <= '1';
+				GHOST_RST <= '1';
+			else 
+				RST <= '0';
+				PLAYER_RST <= '0';
+				GHOST_RST <= '0';
+			end if;
 		end if;
 	else
 		RST <= '0';
 		PLAYER_RST <= '0';
 		GHOST_RST <= '0';
 	end if;
-end if;
 end process;
 -------------------------------------------------------------------------
 SCORE <= currentScore;

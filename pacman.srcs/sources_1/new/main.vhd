@@ -69,27 +69,28 @@ end component;
 component clk_div IS
 	PORT 
 	(
-		CLK	: IN std_logic; -- Clk 100MHz
-		CLK25  : OUT std_logic;
-		CLK_SLOW : out std_logic
+		p_Clock	: IN std_logic; -- p_Clock 100MHz
+		o_VGAClock  : OUT std_logic;
+		o_GameClock : out std_logic
 	);
 END component;
 
 component cyan_ghost is
 	Port ( CLK : in std_logic;
-		RST : in std_logic;
-		  VPOS : out integer;
-		  HPOS : out integer
+			RST : in std_logic;
+			VPOS : out integer;
+			HPOS : out integer
 		);
 end component;
 
 component score_ssd is
 	Port ( 
-			 SCORE : in integer range 0 to 32;
-			 HIGHSCORE: in integer range 0 to 32;
-		   clock: in STD_LOGIC;
-		   ANODE : out STD_LOGIC_VECTOR (3 downto 0);
-		   CATHODE : out STD_LOGIC_VECTOR (6 downto 0));
+			SCORE : in integer range 0 to 32;
+			HIGHSCORE: in integer range 0 to 32;
+			clock: in STD_LOGIC;
+			ANODE : out STD_LOGIC_VECTOR (3 downto 0);
+			CATHODE : out STD_LOGIC_VECTOR (6 downto 0)
+		);
 end component;
 
 component score_fsm is
@@ -110,9 +111,9 @@ signal HIGHSCORE: integer range 0 to 32 := 0;
 begin
 
 CLOCK_DIVIDER : clk_div port map(
-	CLK => CLK,
-	CLK25 => CLK25,
-	CLK_SLOW => SLOW
+	p_Clock => CLK,
+	o_VGAClock => CLK25,
+	o_GameClock => SLOW
 );
 
 VGA_DRIVER : VGA port map(
@@ -158,6 +159,7 @@ SCORE_HANDLER : score_fsm port map(
 	SCORE => SCORE,
 	HIGHSCORE => HIGHSCORE
 );
+
 RED_GHOST_HANDLER : red_ghost port map (
 	CLK => SLOW,
 	RST => GHOST_RESET,
