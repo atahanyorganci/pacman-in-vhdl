@@ -1,11 +1,12 @@
-LIBRARY IEEE;
-USE IEEE.STD_LOGIC_1164.ALL;
-USE work.pacage.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.std_logic_unsigned.all;
 
-ENTITY clk_div IS
-	PORT 
-	(
-		p_Clock	: IN std_logic; -- p_Clock 100MHz
+use work.pacage.all;
+
+entity clk_div is
+	port (
+		p_Clock	: IN std_logic;
 		o_VGAClock  : OUT std_logic;
 		o_GameClock : out std_logic
 	);

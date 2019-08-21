@@ -5,6 +5,7 @@
 -- Project Name: Pacman
 -- Target Devices: BASYS 3
 ----------------------------------------------------------------------------------
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.STD_LOGIC_UNSIGNED.ALL;
@@ -23,7 +24,8 @@ entity VGA is
 			CYAN_H : in integer;
 			CYAN_V : in integer;
 			GHOST_RST : out std_logic;
-			SCORE : out integer range 0 to 32;
+			o_Score : out integer range 0 to 65535;
+			o_HighScore : out integer range 0 to 65535;
 			VGA_HS : out  STD_LOGIC;
 			VGA_VS : out  STD_LOGIC;
 			VGA_RED : out  STD_LOGIC_VECTOR (3 downto 0);
@@ -34,20 +36,25 @@ end VGA;
 
 architecture Behavioral of VGA is
 
--- VGA sync signals 
--- Horizontal Axis
-	constant HD : integer := 639; -- 639 Horizontal Display (640)
-	constant HFP : integer := 16; -- 16 Right border (front porch)
-	constant HSP : integer := 96; -- 96 Sync pulse (Retrace)
-	constant HBP : integer := 48; -- 48 Left boarder (back porch)
--- Vertical Axis
-	constant VD : integer := 479; -- 479 Vertical Display (480)
-	constant VFP : integer := 10; -- 10 Right border (front porch)
-	constant VSP : integer := 2; -- 2 Sync pulse (Retrace)
-	constant VBP : integer := 33; -- 33 Left boarder (back porch)
+-- VGA sync signals
+-- For polarity '0' means negative polarity
 
-	constant c_HTOTAL : integer := HD + HFP + HSP + HBP;
-	constant c_VTOTAL : integer := VD + VFP + VSP + VBP;
+-- Horizontal Axis
+	constant HD : integer := 800; -- Visiable Area
+	constant HFP : integer := 40; -- Front Porch
+	constant HSP : integer := 128; -- Sync Pulse
+	constant HBP : integer := 88; -- Back porch
+	constant c_HPOLARITY : std_logic := '1'; -- Polartity
+	constant c_HTOTAL : integer := HD + HFP + HSP + HBP; -- Whole Line
+
+-- Vertical Axis
+	constant VD : integer := 600; -- Visiable Area
+	constant VFP : integer := 1; -- Front Porch
+	constant VSP : integer := 4; -- Sync Pulse
+	constant VBP : integer := 23; -- Back porch
+	constant c_VPOLARITY : std_logic := '1'; -- Polartity
+	constant c_VTOTAL : integer := VD + VFP + VSP + VBP; -- Whole Line
+
 -- Logic Signals
 -- Game Reset
 	signal RST : std_logic := '0';
@@ -63,7 +70,8 @@ architecture Behavioral of VGA is
 	signal RED_GHOST, CYAN_GHOST : std_logic := '0'; -- Draw signal for Ghost sprites
 	signal enableFood : std_logic_vector (21 downto 0) := "1111111111111111111111";
 	signal FOOD : std_logic_vector (21 downto 0) := "0000000000000000000000";
-	signal currentScore : integer range 0 to 32 := 0;
+	signal s_Score : integer range 0 to 65535 := 0;
+	signal s_HighScore : integer range 0 to 65535 := 0;
 
 begin
 
@@ -101,12 +109,12 @@ end process;
 HSync :process(CLK, RST)
 begin
 	if (RST = '1') then
-		VGA_HS <= '0';
-	elsif(rising_edge(CLK))then
-		if((hPos <= HD + HFP) OR (hPos > HD + HFP + HSP))then
-			VGA_HS <= '1';
+		VGA_HS <= c_HPOLARITY;
+	elsif (rising_edge(CLK)) then
+		if ((hPos < HD + HFP) OR (hPos > HD + HFP + HSP)) then
+			VGA_HS <= not c_HPOLARITY;
 		else
-			VGA_HS <= '0';
+			VGA_HS <= c_HPOLARITY;
 		end if;
 	end if;
 end process;
@@ -115,12 +123,12 @@ end process;
 VSync : process(CLK, RST)
 begin
 	if(RST = '1')then
-		VGA_VS <= '0';
-	elsif(rising_edge(CLK))then
-		if((vPos <= VD + VFP) OR (vPos > VD + VFP + VSP))then
-			VGA_VS <= '1';
+		VGA_VS <= c_VPOLARITY;
+	elsif (rising_edge(CLK)) then
+		if ((vPos < VD + VFP) OR (vPos > VD + VFP + VSP)) then
+			VGA_VS <= not c_VPOLARITY;
 		else
-			VGA_VS <= '0';
+			VGA_VS <= c_VPOLARITY;
 		end if;
 	end if;
 end process;
@@ -189,19 +197,24 @@ end process;
 detectEat : process(CLK, RST)
 begin
 	if (RST = '1') then
-		currentScore <= 0;
+		s_Score <= 0;
 		enableFood <= "1111111111111111111111";
 	else
 		if (rising_edge(CLK)) then
 			for i in 0 to 21 loop
 				if(FOOD(i) = '1' AND PLAYER = '1') then
 					enableFood(i) <= '0';
-					currentScore <= currentScore + 1;
+					s_Score <= s_Score + 1;
+					if (s_Score > s_HighScore) then
+						s_HighScore <= s_Score;
+					end if;
 				end if;
 			end loop;
 		end if;
 	end if;
 end process;
+o_Score <= s_Score;
+o_HighScore <= s_HighScore;
 
 -- Detect Spook
 detectSpook : process(CLK, RST)
@@ -238,8 +251,6 @@ begin
 		GHOST_RST <= '0';
 	end if;
 end process;
--------------------------------------------------------------------------
-SCORE <= currentScore;
 
 DRAW_MARGIN(hPos, vPos, MARGIN); -- margins
 -- RECTANGLE OBSTACLE
