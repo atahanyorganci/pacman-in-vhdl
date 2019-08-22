@@ -1,19 +1,20 @@
 ----------------------------------------------------------------------------------
 -- Engineer: Atahan Yorganci
--- Create Date: 19.12.2018
--- Module Name: main - Behavioral
+-- Create Date: 21.08.2019
+-- Module Name: Main - Behavioral
 -- Project Name: Pacman
 -- Target Devices: BASYS 3
 ----------------------------------------------------------------------------------
 
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
-use work.pacage.all;
+use IEEE.NUMERIC_STD.ALL;
+use work.pacage.ALL;
 
 entity main is
 	Port (
-		CLK : in std_logic; -- Clk 100MHz
-		RST : in std_logic;
+		CLOCK : in std_logic;
+		RESET : in std_logic;
 		DOWN, UP, LEFT, RIGHT : in std_logic;
 		ANODE : out std_logic_vector (3 downto 0);
 		CATHODE : out std_logic_vector (6 downto 0);
@@ -27,143 +28,155 @@ end main;
 
 architecture Behavioral of main is
 
-component red_ghost is
-	Port (
-		CLK : in std_logic;
-		RST : in std_logic;
-		VPOS : out integer;
-		HPOS : out integer
-	);
-end component;
+	component clock_driver is
+		port (
+			p_Clock	: IN std_logic;
+			o_GameClock : out std_logic
+		);
+	end component;
 
-component user_io is
-	Port (
-		LEFT : in STD_LOGIC;
-		UP : in STD_LOGIC;
-		DOWN : in STD_LOGIC;
-		RIGHT : in STD_LOGIC;
-		CLK : in std_logic;
-		RST : in std_logic;
-		PLAYER_H, PLAYER_V: out integer
-	);
-end component;
+	component clk_wiz_0 is
+		port (
+			clk_out1 : out std_logic;
+			reset : in std_logic;
+			locked : out std_logic;
+			clk_in1 : in std_logic
+		);
+	end component;
 
-component VGA is
-	Port ( 
-		CLK : in  STD_LOGIC;
-		RESET : in STD_LOGIC;
-		PLAYER_H : in integer;
-		PLAYER_V : in integer;
-		PLAYER_RST : out std_logic;
-		RED_H : in integer;
-		RED_V : in integer;
-		CYAN_H : in integer;
-		CYAN_V : in integer;
-		GHOST_RST : out std_logic;
-		o_Score : out integer range 0 to 65535;
-		o_HighScore : out integer range 0 to 65535;
-		VGA_HS : out  STD_LOGIC;
-		VGA_VS : out  STD_LOGIC;
-		VGA_RED : out  STD_LOGIC_VECTOR (3 downto 0);
-		VGA_GREEN : out  STD_LOGIC_VECTOR (3 downto 0);
-		VGA_BLUE : out  STD_LOGIC_VECTOR (3 downto 0)
-	);
-end component;
+	component entity_controller is
+		Port (
+			p_VGAClock : in std_logic;
+			p_GameClock : in std_logic;
+			p_Reset : in std_logic;
+			p_HPos : in integer;
+			p_VPos: in integer;
+			p_PlayerHPos : in integer;
+			p_PlayerVPos : in integer;
+			o_Color : out std_logic_vector (2 downto 0);
+			o_Score : out integer range 0 to 65535;
+			o_Highscore : out integer range 0 to 65535;
+			o_Reset : out std_logic
+		);
+	end component;
 
-component clk_div IS
-	PORT (
-		p_Clock	: IN std_logic; -- p_Clock 100MHz
-		o_VGAClock  : OUT std_logic;
-		o_GameClock : out std_logic
-	);
-END component;
+	component ssd_controller is
+		Port ( 
+			p_Clock : in std_logic;
+			p_Score : in integer range 0 to 65535;
+			p_Highscore: in integer range 0 to 65535;
+			o_Anode : out std_logic_vector (3 downto 0);
+			o_Cathode : out std_logic_vector (6 downto 0)
+		);
+	end component;
 
-component cyan_ghost is
-	Port (
-		CLK : in std_logic;
-		RST : in std_logic;
-		VPOS : out integer;
-		HPOS : out integer
-	);
-end component;
+	component user_io is
+		Port ( 
+			p_Left : in std_logic;
+			p_Up : in std_logic;
+			p_Down : in std_logic;
+			p_Right : in std_logic;
+			p_Clock : in std_logic;
+			p_Reset : in std_logic;
+			o_PlayerHPos : out integer;
+			o_PlayerVPos : out integer
+		);
+	end component;
 
-component ssd_controller is
-	Port (
-		p_Clock : in STD_LOGIC;
-		p_Score : in integer range 0 to 65535;
-		p_HighScore: in integer range 0 to 65535;
-		o_Anode : out STD_LOGIC_VECTOR (3 downto 0);
-		o_Cathode : out STD_LOGIC_VECTOR (6 downto 0)
-	);
-end component;
+	component vga_driver is
+		Port (
+			p_Clock : in  std_logic;
+			p_Reset : in std_logic;
+			p_Color : in std_logic_vector (2 downto 0);
+			o_HPos : out integer;
+			o_VPos : out integer;
+			o_VGAHS : out std_logic;
+			o_VGAVS : out std_logic;
+			o_VGARed : out std_logic_vector (3 downto 0);
+			o_VGAGreen : out std_logic_vector (3 downto 0);
+			o_VGABlue : out std_logic_vector (3 downto 0)
+		);
+	end component;
 
-signal s_VGAClock : std_logic := '0';
-signal s_GameClock : std_logic := '0';
-signal PLAYER_H, PLAYER_V : integer := 0;
-signal RED_H, RED_V : integer := 0;
-signal CYAN_H, CYAN_V : integer := 0;
-signal PLAYER_RESET, GHOST_RESET : STD_LOGIC := '0';
-signal s_Score : integer range 0 to 65535 := 0;
-signal s_HighScore: integer range 0 to 65535 := 0;
+	-- Clock Driver Output
+	signal s_GameClock : std_logic := '0';
+
+	-- IP Clock
+	signal s_VGALocked : std_logic := '0';
+	signal s_VGAClock : std_logic := '0';
+
+	-- Entity Controller Output
+	signal s_Color : std_logic_vector (2 downto 0) := "000";
+	signal s_Score : integer range 0 to 65535 := 0;
+	signal s_Highscore: integer range 0 to 65535 := 0;
+	signal s_Reset : std_logic := '0';
+
+	-- User I/O Output
+	signal s_PlayerHPos : integer := 0;
+	signal s_PlayerVPos : integer := 0;
+
+	-- VGA Driver Output
+	signal s_HPos : integer := 0;
+	signal s_VPos : integer := 0;
 
 begin
 
-CLOCK_DIVIDER : clk_div port map(
-	p_Clock => CLK,
-	o_VGAClock => s_VGAClock,
+GAME_LOGIC_CLOCK : clock_driver port map(
+	p_Clock => CLOCK,
 	o_GameClock => s_GameClock
 );
 
-VGA_DRIVER : VGA port map(
-	CLK => s_VGAClock,
-	RESET => RST,
-	PLAYER_H => PLAYER_H,
-	PLAYER_V => PLAYER_V,
-	PLAYER_RST => PLAYER_RESET,
-	RED_H => RED_H,
-	RED_V => RED_V,
-	CYAN_H => CYAN_H,
-	CYAN_V => CYAN_V,
-	GHOST_RST => GHOST_RESET,
-	o_Score => s_Score,
-	o_HighScore => s_HighScore,
-	VGA_HS => VGA_HS,
-	VGA_VS => VGA_VS,
-	VGA_RED => VGA_RED,
-	VGA_GREEN => VGA_GREEN,
-	VGA_BLUE => VGA_BLUE
+VGA_CLOCK : clk_wiz_0 port map (
+	clk_out1 => s_VGAClock,
+	reset => '0',
+	locked => s_VGALocked,
+	clk_in1 => CLOCK
 );
 
-SSD_DRIVER : ssd_controller port map (
-	p_Clock => CLK,
+ENTITY_CONTROL : entity_controller port map (
+	p_VGAClock => s_VGAClock,
+	p_GameClock => s_GameClock,
+	p_Reset => RESET,
+	p_HPos => s_HPos,
+	p_VPos => s_VPos,
+	p_PlayerHPos => s_PlayerHPos,
+	p_PlayerVPos => s_PlayerVPos,
+	o_Color => s_Color,
+	o_Score => s_Score,
+	o_Highscore => s_Highscore,
+	o_Reset => s_Reset
+);
+
+SSD : ssd_controller port map (
+	p_Clock => CLOCK,
 	p_Score => s_Score,
-	p_HighScore => s_HighScore,
+	p_Highscore => s_Highscore,
 	o_Anode => ANODE,
 	o_Cathode => CATHODE
 );
 
-USER_INPUT : user_io port map(
-	LEFT => LEFT,
-	UP => UP,
-	DOWN => DOWN,
-	RIGHT => RIGHT,
-	CLK => s_GameClock,
-	RST => PLAYER_RESET,
-	PLAYER_H => PLAYER_H,
-	PLAYER_V => PLAYER_V
+USER : user_io port map (
+	p_Left => LEFT,
+	p_Up => UP,
+	p_Down => DOWN,
+	p_Right => RIGHT,
+	p_Clock => s_GameClock,
+	p_Reset => s_Reset,
+	o_PlayerHPos => s_PlayerHPos,
+	o_PlayerVPos => s_PlayerVPos
 );
 
-RED_GHOST_HANDLER : red_ghost port map (
-	CLK => s_GameClock,
-	RST => GHOST_RESET,
-	HPOS => RED_H,
-	VPOS => RED_V
+VGA : vga_driver port map(
+	p_Clock => s_VGAClock,
+	p_Reset => s_Reset,
+	p_Color => s_Color,
+	o_HPos => s_HPos,
+	o_VPos => s_VPos,
+	o_VGAHS => VGA_HS,
+	o_VGAVS => VGA_VS,
+	o_VGARed => VGA_RED,
+	o_VGAGreen => VGA_GREEN,
+	o_VGABlue => VGA_BLUE
 );
 
-CYAN_GHOST_HANDLER : cyan_ghost port map (
-	CLK => s_GameClock,
-	RST => GHOST_RESET,
-	HPOS => CYAN_H,
-	VPOS => CYAN_V
-);
 end Behavioral;

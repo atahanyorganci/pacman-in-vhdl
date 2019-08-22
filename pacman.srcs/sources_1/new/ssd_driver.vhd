@@ -1,29 +1,32 @@
 ----------------------------------------------------------------------------------
 -- Engineer: Atahan Yorganci
--- Create Date: 19.12.2018
--- Module Name: Score Seven Segment Display - Behavioral
+-- Create Date: 21.08.2019
+-- Module Name: Seven Segment Driver - Behavioral
 -- Project Name: Pacman
 -- Target Devices: BASYS 3
 ----------------------------------------------------------------------------------
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use IEEE.NUMERIC_STD.ALL;
 
 entity ssd_controller is
-Port ( 
-		p_Clock : in STD_LOGIC;
+	Port ( 
+		p_Clock : in std_logic;
 		p_Score : in integer range 0 to 65535;
-		p_HighScore: in integer range 0 to 65535;
-		o_Anode : out STD_LOGIC_VECTOR (3 downto 0);
-		o_Cathode : out STD_LOGIC_VECTOR (6 downto 0));
+		p_Highscore: in integer range 0 to 65535;
+		o_Anode : out std_logic_vector (3 downto 0);
+		o_Cathode : out std_logic_vector (6 downto 0)
+	);
 end ssd_controller;
 
 architecture Behavioral of ssd_controller is
 
-	constant c_MAXCOUNT : integer := 6250; -- Adjust the refresh rate of the clock signal
-	signal s_Temp : STD_LOGIC_VECTOR (1 downto 0); -- Intermediate two bit clock signal for inverted decoder
-	signal s_MuxOutput : integer range 0 to 32 := 0; -- Multiplexer output
-	signal s_ScoreVector : STD_LOGIC_VECTOR (15 downto 0);
-	signal s_HighScoreVector : STD_LOGIC_VECTOR (15 downto 0);
+	constant c_MAXCOUNT : integer := 500000;
+	signal s_Temp : std_logic_vector (1 downto 0);
+	signal s_MuxOutput : integer range 0 to 32 := 0;
+	signal s_ScoreVector : std_logic_vector (15 downto 0);
+	signal s_HighscoreVector : std_logic_vector (15 downto 0);
 
 begin
 
@@ -84,13 +87,13 @@ begin
 end process;
 
 -- Multiplexer for the the display
-MUX : process (s_Temp, p_Score, p_HighScore) is
+MUX : process (s_Temp, p_Score, p_Highscore) is
 begin
 	case s_Temp is
 		when "00" => s_MuxOutput <= p_Score mod 16;
 		when "01" => s_MuxOutput <= p_Score / 16;
-		when "10" => s_MuxOutput <= p_HighScore mod 16;
-		when "11" => s_MuxOutput <= p_HighScore / 16;
+		when "10" => s_MuxOutput <= p_Highscore mod 16;
+		when "11" => s_MuxOutput <= p_Highscore / 16;
 		when others => s_MuxOutput <= 0;
 	end case;
 end process;

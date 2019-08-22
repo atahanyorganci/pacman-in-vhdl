@@ -1,17 +1,13 @@
 ----------------------------------------------------------------------------------
 -- Engineer: Atahan Yorganci
 -- Create Date: 19.12.2018
--- Module Name: VGA - Behavioral
+-- Module Name: Pacage - Behavioral
 -- Project Name: Pacman
 -- Target Devices: BASYS 3
 ----------------------------------------------------------------------------------
 
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
--- use IEEE.NUMERIC_STD.ALL;
---library UNISIM;
---use UNISIM.VComponents.all;
 
 package pacage is
 
