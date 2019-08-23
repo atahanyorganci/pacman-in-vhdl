@@ -42,12 +42,7 @@ architecture Behavioral of entity_controller is
 	signal s_EnableFood : std_logic_vector (21 downto 0) := "1111111111111111111111";
 
 	signal s_DrawRedGhost : std_logic := '0';
-	signal s_RedGhostHPos : integer;
-	signal s_RedGhostVPos : integer;
-
 	signal s_DrawCyanGhost : std_logic := '0';
-	signal s_CyanGhostHPos : integer;
-	signal s_CyanGhostVPos : integer;
 
 	signal s_Reset : std_logic := '0';
 
@@ -56,7 +51,7 @@ architecture Behavioral of entity_controller is
 	signal s_Score : integer range 0 to 65535 := 0;
 	signal s_Highscore : integer range 0 to 65535 := 0;
 
-	component ghost_path is
+	component ghost is
 		generic (
 			g_HINIT : integer := 200;
 			g_VINIT : integer := 140;
@@ -64,39 +59,44 @@ architecture Behavioral of entity_controller is
 			g_VCORNER : integer := 340
 		);
 		port (
-			p_Clock : in std_logic;
+			p_GameClock : in std_logic;
+			p_VGAClock : in std_logic;
 			p_Reset : in std_logic;
-			o_VPos : out integer;
-			o_HPos : out integer
+			p_HPos : in integer;
+			p_VPos: in integer;
+			o_Draw : out std_logic
 		);
 	end component;
 
 begin
 
-RED_GHOST : ghost_path generic map (
-	g_HINIT => 200,
-	g_VINIT => 140,
-	g_HCORNER => 360,
-	g_VCORNER => 340
+RED_GHOST : ghost generic map (
+	g_HINIT => 130,
+	g_VINIT => 50,
+	g_HCORNER => 470,
+	g_VCORNER => 150
 ) port map (
-	p_Clock => p_GameClock,
+	p_GameClock => p_GameClock,
+	p_VGAClock => p_VGAClock,
 	p_Reset => p_Reset,
-	o_VPos => s_RedGhostHPos,
-	o_HPos => s_RedGhostVPos
+	p_HPos => p_HPos,
+	p_VPos => p_VPos,
+	o_Draw => s_DrawRedGhost
 );
 
-CYAN_GHOST : ghost_path generic map (
-	g_HINIT => 120,
-	g_VINIT => 140,
-	g_HCORNER => 440,
-	g_VCORNER => 40
+CYAN_GHOST : ghost generic map (
+	g_HINIT => 130,
+	g_VINIT => 50,
+	g_HCORNER => 470,
+	g_VCORNER => 150
 ) port map (
-	p_Clock => p_GameClock,
+	p_GameClock => p_GameClock,
+	p_VGAClock => p_VGAClock,
 	p_Reset => p_Reset,
-	o_VPos => s_CyanGhostHPos,
-	o_HPos => s_CyanGhostVPos
+	p_HPos => p_HPos,
+	p_VPos => p_VPos,
+	o_Draw => s_DrawCyanGhost
 );
-
 
 color : process(p_VGAClock, s_Reset)
 begin
@@ -217,8 +217,5 @@ DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(18), 0, 360, 10, s_DrawFood(18)); -- Food
 DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(19), 80, 360, 10, s_DrawFood(19)); -- Food 20
 DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(20), 240, 360, 10, s_DrawFood(20)); -- Food 21
 DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(21), 320, 360, 10, s_DrawFood(21)); -- Food 22
-
-DRAW_GHOST(p_HPos, p_VPos, s_RedGhostHPos, s_RedGhostVPos, s_DrawRedGhost);
-DRAW_GHOST(p_HPos, p_VPos, s_CyanGhostHPos, s_CyanGhostVPos, s_DrawCyanGhost);
 
 end Behavioral;

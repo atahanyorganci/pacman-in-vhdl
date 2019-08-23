@@ -15,7 +15,6 @@ procedure DRAW_MARGIN (signal HPOS, VPOS : in integer; signal DRAW : out std_log
 procedure DRAW_RECTANGLE (signal HPOS, VPOS: in integer; constant HCORNER, VCORNER, WIDTH, HEIGHT: in integer; signal DRAW : out std_logic);
 procedure DRAW_CIRCLE (signal HPOS, VPOS, HCORNER, VCORNER: in integer; signal ENABLE : in std_logic; constant RADIUS : in integer; signal DRAW : out std_logic);
 procedure DRAW_FOOD (signal HPOS, VPOS : in integer; signal enable : in std_logic; constant HCORNER, VCORNER, RADIUS : in integer; signal DRAW : out std_logic);
-procedure DRAW_GHOST (signal HPOS, VPOS, HCORNER, VCORNER: in integer; signal DRAW : out std_logic);
 end package;
 
 package body pacage is
@@ -59,15 +58,4 @@ begin
 		DRAW <= '0';
 	end if;
 end procedure;
------------------------------------------------------------------------
-procedure DRAW_GHOST (signal HPOS, VPOS, HCORNER, VCORNER: in integer; signal DRAW : out std_logic) is
-begin
-	if( (HPOS - HCORNER - 20)*(HPOS - HCORNER - 20) + (VPOS - VCORNER - 20) * (VPOS - VCORNER - 20) <= 100) then
-		DRAW <= '1';
-	elsif ((HPOS - HCORNER > 10 and HPOS - HCORNER < 30) and (VPOS - VCORNER > 20 and VPOS - VCORNER < 30)) then
-		DRAW <= '1';
-	else
-		DRAW <= '0';
-	end if;
-end DRAW_GHOST;
 end package body;

@@ -24,295 +24,295 @@ end user_io;
 
 architecture Behavioral of user_io is
 
-signal playerH : integer := 281;
-signal playerV : integer := 91;
+signal s_PlayerH : integer := 281;
+signal s_PlayerV : integer := 91;
 
 begin
 
-process (p_Left, p_Up, p_Down, p_Right, p_Clock, p_Reset) 
+process (p_Clock, p_Reset) 
 begin
 	if (p_Reset = '1') then
-		playerH <= 281;
-		playerV <= 91;
-	elsif ( rising_edge(p_Clock) ) then
+		s_PlayerH <= 281;
+		s_PlayerV <= 91;
+	elsif (rising_edge(p_Clock)) then
 		if (p_Left = '1') then
-			if (playerV < 80 and playerV > 40) then 
-				if ( playerH - 1 > 120) then
-					playerH <= playerH - 1;
+			if (s_PlayerV < 80 and s_PlayerV > 40) then 
+				if ( s_PlayerH - 1 > 120) then
+					s_PlayerH <= s_PlayerH - 1;
 				end if;
-			elsif (playerV < 140 and playerV > 80) then 
-				if (playerH - 1 > 120 and playerH < 160) then
-					playerH <= playerH - 1;
-				elsif(playerH - 1 > 280 and playerH < 320) then
-					playerH <= playerH - 1;
-				elsif (playerH - 1 > 440 and playerH < 480) then
-					playerH <= playerH - 1;
+			elsif (s_PlayerV < 140 and s_PlayerV > 80) then 
+				if (s_PlayerH - 1 > 120 and s_PlayerH < 160) then
+					s_PlayerH <= s_PlayerH - 1;
+				elsif(s_PlayerH - 1 > 280 and s_PlayerH < 320) then
+					s_PlayerH <= s_PlayerH - 1;
+				elsif (s_PlayerH - 1 > 440 and s_PlayerH < 480) then
+					s_PlayerH <= s_PlayerH - 1;
 				end if;
-			elsif (playerV < 180) then 
-				if (playerH - 1 > 120) then
-					playerH <= playerH - 1;
+			elsif (s_PlayerV < 180) then 
+				if (s_PlayerH - 1 > 120) then
+					s_PlayerH <= s_PlayerH - 1;
 				end if;
-			elsif (playerV < 220 and playerV > 180) then
-				if ((playerH < 160 and playerH - 1 > 120) or (playerH < 240 and playerH - 1 > 200) or (playerH < 400 and playerH - 1 > 360) or (playerH < 480 and playerH - 1 > 440)) then
-					playerH <= playerH - 1;
+			elsif (s_PlayerV < 220 and s_PlayerV > 180) then
+				if ((s_PlayerH < 160 and s_PlayerH - 1 > 120) or (s_PlayerH < 240 and s_PlayerH - 1 > 200) or (s_PlayerH < 400 and s_PlayerH - 1 > 360) or (s_PlayerH < 480 and s_PlayerH - 1 > 440)) then
+					s_PlayerH <= s_PlayerH - 1;
 				end if;
-			elsif (playerV < 260 and playerV > 220) then
-				if (playerH < 160 and playerH - 1 > 120) then
-					playerH <= playerH - 1;
-				elsif (playerH < 280 and playerH - 1 > 200) then
-					playerH <= playerH - 1;
-				elsif (playerH < 400 and playerH - 1 > 320) then
-					playerH <= playerH - 1;
-				elsif (playerH < 480 and playerH - 1 > 440) then
-					playerH <= playerH - 1;
+			elsif (s_PlayerV < 260 and s_PlayerV > 220) then
+				if (s_PlayerH < 160 and s_PlayerH - 1 > 120) then
+					s_PlayerH <= s_PlayerH - 1;
+				elsif (s_PlayerH < 280 and s_PlayerH - 1 > 200) then
+					s_PlayerH <= s_PlayerH - 1;
+				elsif (s_PlayerH < 400 and s_PlayerH - 1 > 320) then
+					s_PlayerH <= s_PlayerH - 1;
+				elsif (s_PlayerH < 480 and s_PlayerH - 1 > 440) then
+					s_PlayerH <= s_PlayerH - 1;
 				end if;
-			elsif (playerV < 300) then
-				if (playerH < 160 and playerH - 1 > 120) then
-					playerH <= playerH - 1;
-				elsif (playerH < 240 and playerH - 1 > 200) then
-					playerH <= playerH - 1;
-				elsif (playerH < 400 and playerH - 1 > 360) then
-					playerH <= playerH - 1;
-				elsif (playerH < 480 and playerH - 1 > 440) then
-					playerH <= playerH - 1;
+			elsif (s_PlayerV < 300) then
+				if (s_PlayerH < 160 and s_PlayerH - 1 > 120) then
+					s_PlayerH <= s_PlayerH - 1;
+				elsif (s_PlayerH < 240 and s_PlayerH - 1 > 200) then
+					s_PlayerH <= s_PlayerH - 1;
+				elsif (s_PlayerH < 400 and s_PlayerH - 1 > 360) then
+					s_PlayerH <= s_PlayerH - 1;
+				elsif (s_PlayerH < 480 and s_PlayerH - 1 > 440) then
+					s_PlayerH <= s_PlayerH - 1;
 				end if;
-			elsif (playerV < 340) then
-				if (playerH < 240 and playerH - 1 > 120) then
-					playerH <= playerH - 1;
-				elsif (playerH < 480 and playerH - 1 > 360) then
-					playerH <= playerH - 1;
+			elsif (s_PlayerV < 340) then
+				if (s_PlayerH < 240 and s_PlayerH - 1 > 120) then
+					s_PlayerH <= s_PlayerH - 1;
+				elsif (s_PlayerH < 480 and s_PlayerH - 1 > 360) then
+					s_PlayerH <= s_PlayerH - 1;
 				end if;
-			elsif ( playerV < 380 ) then
-				if (playerH < 160 and playerH - 1 > 120) then
-					playerH <= playerH - 1;
-				elsif (playerH < 400 and playerH - 1 > 200) then
-					playerH <= playerH - 1;
-				elsif (playerH < 480 and playerH - 1 > 440) then
-					playerH <= playerH - 1;
+			elsif ( s_PlayerV < 380 ) then
+				if (s_PlayerH < 160 and s_PlayerH - 1 > 120) then
+					s_PlayerH <= s_PlayerH - 1;
+				elsif (s_PlayerH < 400 and s_PlayerH - 1 > 200) then
+					s_PlayerH <= s_PlayerH - 1;
+				elsif (s_PlayerH < 480 and s_PlayerH - 1 > 440) then
+					s_PlayerH <= s_PlayerH - 1;
 				end if;
-			elsif (playerV < 390) then
-				if (playerH < 160 and playerH - 1 > 120) then
-					playerH <= playerH - 1;
-				elsif (playerH < 240 and playerH - 1 > 200) then
-					playerH <= playerH - 1;
-				elsif (playerH < 400 and playerH - 1 > 320) then
-					playerH <= playerH - 1;
-				elsif (playerH < 480 and playerH - 1 > 440) then
-					playerH <= playerH - 1;
+			elsif (s_PlayerV < 390) then
+				if (s_PlayerH < 160 and s_PlayerH - 1 > 120) then
+					s_PlayerH <= s_PlayerH - 1;
+				elsif (s_PlayerH < 240 and s_PlayerH - 1 > 200) then
+					s_PlayerH <= s_PlayerH - 1;
+				elsif (s_PlayerH < 400 and s_PlayerH - 1 > 320) then
+					s_PlayerH <= s_PlayerH - 1;
+				elsif (s_PlayerH < 480 and s_PlayerH - 1 > 440) then
+					s_PlayerH <= s_PlayerH - 1;
 				else
-					playerH <= playerH - 1;
+					s_PlayerH <= s_PlayerH - 1;
 				end if;
-			elsif (playerV < 430) then
-				if (playerH < 240 and playerH - 1 > 120) then
-					playerH <= playerH - 1;
-				elsif (playerH < 480 and playerH - 1 > 360) then
-					playerH <= playerH - 1;
+			elsif (s_PlayerV < 430) then
+				if (s_PlayerH < 240 and s_PlayerH - 1 > 120) then
+					s_PlayerH <= s_PlayerH - 1;
+				elsif (s_PlayerH < 480 and s_PlayerH - 1 > 360) then
+					s_PlayerH <= s_PlayerH - 1;
 				end if;
 			else
-				playerH <= playerH - 1;
+				s_PlayerH <= s_PlayerH - 1;
 			end if;
 		elsif (p_Right = '1') then
-			if (playerV < 80 and playerV > 40) then 
-				if (playerH + 31 < 480) then
-					playerH <= playerH + 1;
+			if (s_PlayerV < 80 and s_PlayerV > 40) then 
+				if (s_PlayerH + 31 < 480) then
+					s_PlayerH <= s_PlayerH + 1;
 				end if;
-			elsif (playerV < 140 and playerV > 80) then 
-				if (playerH + 31 < 160 and playerH > 120) then
-					playerH <= playerH + 1;
-				elsif (playerH + 31 < 320 and playerH > 280) then
-					playerH <= playerH + 1;
-				elsif (playerH + 31 < 480 and playerH > 440) then
-					playerH <= playerH + 1;
+			elsif (s_PlayerV < 140 and s_PlayerV > 80) then 
+				if (s_PlayerH + 31 < 160 and s_PlayerH > 120) then
+					s_PlayerH <= s_PlayerH + 1;
+				elsif (s_PlayerH + 31 < 320 and s_PlayerH > 280) then
+					s_PlayerH <= s_PlayerH + 1;
+				elsif (s_PlayerH + 31 < 480 and s_PlayerH > 440) then
+					s_PlayerH <= s_PlayerH + 1;
 				end if;
-			elsif (playerV < 180 and playerV > 140) then 
-				if (playerH + 31 < 480) then
-					playerH <= playerH + 1;
+			elsif (s_PlayerV < 180 and s_PlayerV > 140) then 
+				if (s_PlayerH + 31 < 480) then
+					s_PlayerH <= s_PlayerH + 1;
 				end if;
-			elsif (playerV < 220 and playerV > 180) then
-				if ((playerH + 31 < 160 and playerH > 120) or (playerH + 31 < 240 and playerH > 200) or (playerH + 31 < 400 and playerH > 360) or (playerH + 31 < 480 and playerH > 440)) then
-					playerH <= playerH + 1;
+			elsif (s_PlayerV < 220 and s_PlayerV > 180) then
+				if ((s_PlayerH + 31 < 160 and s_PlayerH > 120) or (s_PlayerH + 31 < 240 and s_PlayerH > 200) or (s_PlayerH + 31 < 400 and s_PlayerH > 360) or (s_PlayerH + 31 < 480 and s_PlayerH > 440)) then
+					s_PlayerH <= s_PlayerH + 1;
 				end if;
-			elsif (playerV < 260 and playerV > 220) then
-				if (playerH  + 31 < 160 and playerH  > 120) then
-					playerH <= playerH + 1;
-				elsif (playerH + 31 < 280 and playerH > 200) then
-					playerH <= playerH + 1;
-				elsif (playerH + 31 < 400 and playerH > 320) then
-					playerH <= playerH + 1;
-				elsif (playerH + 31 < 480 and playerH > 440) then
-					playerH <= playerH + 1;
+			elsif (s_PlayerV < 260 and s_PlayerV > 220) then
+				if (s_PlayerH  + 31 < 160 and s_PlayerH  > 120) then
+					s_PlayerH <= s_PlayerH + 1;
+				elsif (s_PlayerH + 31 < 280 and s_PlayerH > 200) then
+					s_PlayerH <= s_PlayerH + 1;
+				elsif (s_PlayerH + 31 < 400 and s_PlayerH > 320) then
+					s_PlayerH <= s_PlayerH + 1;
+				elsif (s_PlayerH + 31 < 480 and s_PlayerH > 440) then
+					s_PlayerH <= s_PlayerH + 1;
 				end if;
-			elsif (playerV < 300) then
-				if (playerH + 31 < 160 and playerH > 120) then
-					playerH <= playerH + 1;
-				elsif (playerH + 31 < 240 and playerH > 200) then
-					playerH <= playerH + 1;
-				elsif (playerH + 31 < 400 and playerH > 360) then
-					playerH <= playerH + 1;
-				elsif (playerH + 31 < 480 and playerH > 440) then
-					playerH <= playerH + 1;
+			elsif (s_PlayerV < 300) then
+				if (s_PlayerH + 31 < 160 and s_PlayerH > 120) then
+					s_PlayerH <= s_PlayerH + 1;
+				elsif (s_PlayerH + 31 < 240 and s_PlayerH > 200) then
+					s_PlayerH <= s_PlayerH + 1;
+				elsif (s_PlayerH + 31 < 400 and s_PlayerH > 360) then
+					s_PlayerH <= s_PlayerH + 1;
+				elsif (s_PlayerH + 31 < 480 and s_PlayerH > 440) then
+					s_PlayerH <= s_PlayerH + 1;
 				end if;
-			elsif (playerV < 340) then
-				if (playerH + 31 < 240 and playerH > 120) then
-					playerH <= playerH + 1;
-				elsif (playerH + 31 < 480 and playerH > 360) then
-					playerH <= playerH + 1;
+			elsif (s_PlayerV < 340) then
+				if (s_PlayerH + 31 < 240 and s_PlayerH > 120) then
+					s_PlayerH <= s_PlayerH + 1;
+				elsif (s_PlayerH + 31 < 480 and s_PlayerH > 360) then
+					s_PlayerH <= s_PlayerH + 1;
 				end if;
-			elsif ( playerV < 380 ) then
-				if (playerH + 31 < 160 and playerH > 120) then
-					playerH <= playerH + 1;
-				elsif (playerH + 31 < 400 and playerH > 200) then
-					playerH <= playerH + 1;
-				elsif (playerH + 31 < 480 and playerH > 440) then
-					playerH <= playerH + 1;
+			elsif ( s_PlayerV < 380 ) then
+				if (s_PlayerH + 31 < 160 and s_PlayerH > 120) then
+					s_PlayerH <= s_PlayerH + 1;
+				elsif (s_PlayerH + 31 < 400 and s_PlayerH > 200) then
+					s_PlayerH <= s_PlayerH + 1;
+				elsif (s_PlayerH + 31 < 480 and s_PlayerH > 440) then
+					s_PlayerH <= s_PlayerH + 1;
 				end if;
-			elsif (playerV < 390) then
-				if (playerH + 31< 160 and playerH > 120) then
-					playerH <= playerH + 1;
-				elsif (playerH + 31 < 240 and playerH > 200) then
-					playerH <= playerH + 1;
-				elsif (playerH + 31 < 400 and playerH > 320) then
-					playerH <= playerH + 1;
-				elsif (playerH + 31 < 480 and playerH > 440) then
-					playerH <= playerH + 1;
+			elsif (s_PlayerV < 390) then
+				if (s_PlayerH + 31< 160 and s_PlayerH > 120) then
+					s_PlayerH <= s_PlayerH + 1;
+				elsif (s_PlayerH + 31 < 240 and s_PlayerH > 200) then
+					s_PlayerH <= s_PlayerH + 1;
+				elsif (s_PlayerH + 31 < 400 and s_PlayerH > 320) then
+					s_PlayerH <= s_PlayerH + 1;
+				elsif (s_PlayerH + 31 < 480 and s_PlayerH > 440) then
+					s_PlayerH <= s_PlayerH + 1;
 				end if;
-			elsif (playerV < 430) then
-				if (playerH + 31 < 240 and playerH > 120) then
-					playerH <= playerH + 1;
-				elsif (playerH + 31 < 480 and playerH > 360) then
-					playerH <= playerH + 1;
+			elsif (s_PlayerV < 430) then
+				if (s_PlayerH + 31 < 240 and s_PlayerH > 120) then
+					s_PlayerH <= s_PlayerH + 1;
+				elsif (s_PlayerH + 31 < 480 and s_PlayerH > 360) then
+					s_PlayerH <= s_PlayerH + 1;
 				end if;
 			else
-				playerH <= playerH + 1;
+				s_PlayerH <= s_PlayerH + 1;
 			end if;
 		elsif (p_Down = '1') then
-				if ( playerH < 240 and playerV > 200) or (playerV < 400 and playerV > 360) then
-					if(playerV + 31 < 440) then 
-						playerV <= playerV + 1;
+				if ( s_PlayerH < 240 and s_PlayerV > 200) or (s_PlayerV < 400 and s_PlayerV > 360) then
+					if(s_PlayerV + 31 < 440) then 
+						s_PlayerV <= s_PlayerV + 1;
 					end if;
-				elsif ( playerH < 160 and playerH > 120) then
-					if (playerV + 31 < 440) then
-						playerV <= playerV + 1;
+				elsif ( s_PlayerH < 160 and s_PlayerH > 120) then
+					if (s_PlayerV + 31 < 440) then
+						s_PlayerV <= s_PlayerV + 1;
 					end if;
-				elsif (playerH < 200 and playerH > 160) then
-					if (playerV + 31 < 80) then 
-						playerV <= playerV + 1;
-					elsif (playerV + 31 < 180 and playerV > 140) then
-						playerV <= playerV + 1;
-					elsif (playerV + 31 < 340 and playerV > 300) then
-						playerV <= playerV + 1;
-					elsif (playerV + 31 < 440 and playerV > 400) then
-						playerV <= playerV + 1;
+				elsif (s_PlayerH < 200 and s_PlayerH > 160) then
+					if (s_PlayerV + 31 < 80) then 
+						s_PlayerV <= s_PlayerV + 1;
+					elsif (s_PlayerV + 31 < 180 and s_PlayerV > 140) then
+						s_PlayerV <= s_PlayerV + 1;
+					elsif (s_PlayerV + 31 < 340 and s_PlayerV > 300) then
+						s_PlayerV <= s_PlayerV + 1;
+					elsif (s_PlayerV + 31 < 440 and s_PlayerV > 400) then
+						s_PlayerV <= s_PlayerV + 1;
 					end if;
-				elsif (playerH < 280 and playerH > 240) then
-					if (playerV + 31 < 80) then 
-						playerV <= playerV + 1;
-					elsif (playerV + 31 < 180 and playerV > 140) then
-						playerV <= playerV + 1;
-					elsif (playerV + 31 < 260 and playerV > 220) then
-						playerV <= playerV + 1;
-					elsif (playerV + 31 < 380 and playerV > 340) then
-						playerV <= playerV + 1;
+				elsif (s_PlayerH < 280 and s_PlayerH > 240) then
+					if (s_PlayerV + 31 < 80) then 
+						s_PlayerV <= s_PlayerV + 1;
+					elsif (s_PlayerV + 31 < 180 and s_PlayerV > 140) then
+						s_PlayerV <= s_PlayerV + 1;
+					elsif (s_PlayerV + 31 < 260 and s_PlayerV > 220) then
+						s_PlayerV <= s_PlayerV + 1;
+					elsif (s_PlayerV + 31 < 380 and s_PlayerV > 340) then
+						s_PlayerV <= s_PlayerV + 1;
 					end if;
-				elsif ( playerH < 320 and playerH > 280) then -- Middle
-					if (playerV + 31 < 180) then 
-						playerV <= playerV + 1;
-					elsif (playerV + 31 < 380 and playerV > 340) then
-						playerV <= playerV + 1;
+				elsif ( s_PlayerH < 320 and s_PlayerH > 280) then -- Middle
+					if (s_PlayerV + 31 < 180) then 
+						s_PlayerV <= s_PlayerV + 1;
+					elsif (s_PlayerV + 31 < 380 and s_PlayerV > 340) then
+						s_PlayerV <= s_PlayerV + 1;
 					end if;
-				elsif (playerH < 360 and playerH > 320) then
-					if (playerV + 31 < 80) then 
-						playerV <= playerV + 1;
-					elsif (playerV + 31 < 180 and playerV > 140) then
-						playerV <= playerV + 1;
-					elsif (playerV + 31 < 260 and playerV > 220) then
-						playerV <= playerV + 1;
-					elsif (playerV + 31 < 380 and playerV > 340) then
-						playerV <= playerV + 1;
+				elsif (s_PlayerH < 360 and s_PlayerH > 320) then
+					if (s_PlayerV + 31 < 80) then 
+						s_PlayerV <= s_PlayerV + 1;
+					elsif (s_PlayerV + 31 < 180 and s_PlayerV > 140) then
+						s_PlayerV <= s_PlayerV + 1;
+					elsif (s_PlayerV + 31 < 260 and s_PlayerV > 220) then
+						s_PlayerV <= s_PlayerV + 1;
+					elsif (s_PlayerV + 31 < 380 and s_PlayerV > 340) then
+						s_PlayerV <= s_PlayerV + 1;
 					end if;
-				elsif (playerH < 440 and playerH > 400) then
-					if (playerV + 31 < 80) then 
-						playerV <= playerV + 1;
-					elsif (playerV + 31 < 180 and playerV > 140) then
-						playerV <= playerV + 1;
-					elsif (playerV + 31 < 340 and playerV > 300) then
-						playerV <= playerV + 1;
-					elsif (playerV + 31 < 440 and playerV > 400) then
-						playerV <= playerV + 1;
+				elsif (s_PlayerH < 440 and s_PlayerH > 400) then
+					if (s_PlayerV + 31 < 80) then 
+						s_PlayerV <= s_PlayerV + 1;
+					elsif (s_PlayerV + 31 < 180 and s_PlayerV > 140) then
+						s_PlayerV <= s_PlayerV + 1;
+					elsif (s_PlayerV + 31 < 340 and s_PlayerV > 300) then
+						s_PlayerV <= s_PlayerV + 1;
+					elsif (s_PlayerV + 31 < 440 and s_PlayerV > 400) then
+						s_PlayerV <= s_PlayerV + 1;
 					end if;
-				elsif ( playerH < 480 and playerH > 400) then
-					if (playerV + 31 < 440) then
-						playerV <= playerV + 1;
+				elsif ( s_PlayerH < 480 and s_PlayerH > 400) then
+					if (s_PlayerV + 31 < 440) then
+						s_PlayerV <= s_PlayerV + 1;
 					end if;
 				else
-					playerV <= playerV + 1;
+					s_PlayerV <= s_PlayerV + 1;
 				end if;
 		elsif (p_Up = '1') then 
-			if ( playerH < 240 and playerV > 200) or (playerV < 400 and playerV > 360) then
-				if(playerV - 1 > 40) then 
-					playerV <= playerV - 1;
+			if ( s_PlayerH < 240 and s_PlayerV > 200) or (s_PlayerV < 400 and s_PlayerV > 360) then
+				if(s_PlayerV - 1 > 40) then 
+					s_PlayerV <= s_PlayerV - 1;
 				end if;
-			elsif ( playerH < 160 and playerH > 120) then
-				if (playerV - 1 > 40) then
-					playerV <= playerV - 1;
+			elsif ( s_PlayerH < 160 and s_PlayerH > 120) then
+				if (s_PlayerV - 1 > 40) then
+					s_PlayerV <= s_PlayerV - 1;
 				end if;
-			elsif (playerH < 200 and playerH > 160) then
-				if (playerV - 1 > 40) then 
-					playerV <= playerV - 1;
-				elsif (playerV - 1 > 140 and playerV < 180) then
-					playerV <= playerV - 1;
-				elsif (playerV - 1 > 300 and playerV < 340) then
-					playerV <= playerV - 1;
-				elsif (playerV - 1 > 400 and playerV < 440) then
-					playerV <= playerV - 1;
+			elsif (s_PlayerH < 200 and s_PlayerH > 160) then
+				if (s_PlayerV - 1 > 40) then 
+					s_PlayerV <= s_PlayerV - 1;
+				elsif (s_PlayerV - 1 > 140 and s_PlayerV < 180) then
+					s_PlayerV <= s_PlayerV - 1;
+				elsif (s_PlayerV - 1 > 300 and s_PlayerV < 340) then
+					s_PlayerV <= s_PlayerV - 1;
+				elsif (s_PlayerV - 1 > 400 and s_PlayerV < 440) then
+					s_PlayerV <= s_PlayerV - 1;
 				end if;
-			elsif (playerH < 280 and playerH > 240) then
-				if (playerV - 1 < 40) then 
-					playerV <= playerV - 1;
-				elsif (playerV - 1 > 140 and playerV < 180) then
-					playerV <= playerV - 1;
-				elsif (playerV - 1 > 260 and playerV < 220) then
-					playerV <= playerV - 1;
-				elsif (playerV - 1 > 380 and playerV < 340) then
-					playerV <= playerV - 1;
+			elsif (s_PlayerH < 280 and s_PlayerH > 240) then
+				if (s_PlayerV - 1 < 40) then 
+					s_PlayerV <= s_PlayerV - 1;
+				elsif (s_PlayerV - 1 > 140 and s_PlayerV < 180) then
+					s_PlayerV <= s_PlayerV - 1;
+				elsif (s_PlayerV - 1 > 260 and s_PlayerV < 220) then
+					s_PlayerV <= s_PlayerV - 1;
+				elsif (s_PlayerV - 1 > 380 and s_PlayerV < 340) then
+					s_PlayerV <= s_PlayerV - 1;
 				end if;
-			elsif ( playerH < 320 and playerH > 280) then -- Middle
-				if (playerV - 1 > 40) then 
-					playerV <= playerV - 1;
-				elsif (playerV - 1 > 340 and playerV > 380) then
-					playerV <= playerV - 1;
+			elsif ( s_PlayerH < 320 and s_PlayerH > 280) then -- Middle
+				if (s_PlayerV - 1 > 40) then 
+					s_PlayerV <= s_PlayerV - 1;
+				elsif (s_PlayerV - 1 > 340 and s_PlayerV > 380) then
+					s_PlayerV <= s_PlayerV - 1;
 				end if;
-			elsif (playerH < 360 and playerH > 320) then
-				if (playerV - 1 > 40) then 
-					playerV <= playerV - 1;
-				elsif (playerV - 1 > 140 and playerV < 180) then
-					playerV <= playerV - 1;
-				elsif (playerV - 1 > 220 and playerV < 260) then
-					playerV <= playerV - 1;
-				elsif (playerV - 1 > 340 and playerV < 380) then
-					playerV <= playerV - 1;
+			elsif (s_PlayerH < 360 and s_PlayerH > 320) then
+				if (s_PlayerV - 1 > 40) then 
+					s_PlayerV <= s_PlayerV - 1;
+				elsif (s_PlayerV - 1 > 140 and s_PlayerV < 180) then
+					s_PlayerV <= s_PlayerV - 1;
+				elsif (s_PlayerV - 1 > 220 and s_PlayerV < 260) then
+					s_PlayerV <= s_PlayerV - 1;
+				elsif (s_PlayerV - 1 > 340 and s_PlayerV < 380) then
+					s_PlayerV <= s_PlayerV - 1;
 				end if;
-			elsif (playerH < 440 and playerH > 400) then
-				if (playerV - 1 > 40) then 
-					playerV <= playerV - 1;
-				elsif (playerV - 1 > 180 and playerV < 140) then
-					playerV <= playerV - 1;
-				elsif (playerV - 1 > 340 and playerV < 300) then
-					playerV <= playerV - 1;
-				elsif (playerV - 1 > 440 and playerV < 400) then
-					playerV <= playerV - 1;
+			elsif (s_PlayerH < 440 and s_PlayerH > 400) then
+				if (s_PlayerV - 1 > 40) then 
+					s_PlayerV <= s_PlayerV - 1;
+				elsif (s_PlayerV - 1 > 180 and s_PlayerV < 140) then
+					s_PlayerV <= s_PlayerV - 1;
+				elsif (s_PlayerV - 1 > 340 and s_PlayerV < 300) then
+					s_PlayerV <= s_PlayerV - 1;
+				elsif (s_PlayerV - 1 > 440 and s_PlayerV < 400) then
+					s_PlayerV <= s_PlayerV - 1;
 				end if;
-			elsif ( playerH < 480 and playerH > 400) then
-				if (playerV - 1 > 40) then
-					playerV <= playerV - 1;
+			elsif ( s_PlayerH < 480 and s_PlayerH > 400) then
+				if (s_PlayerV - 1 > 40) then
+					s_PlayerV <= s_PlayerV - 1;
 				end if;
 			else
-				playerV <= playerV - 1;
+				s_PlayerV <= s_PlayerV - 1;
 			end if;
 		end if;
 	end if;
 end process;
-o_PlayerHPos <= playerH;
-o_PlayerVPos <= playerV;
+o_PlayerHPos <= s_PlayerH;
+o_PlayerVPos <= s_PlayerV;
 
 end Behavioral;

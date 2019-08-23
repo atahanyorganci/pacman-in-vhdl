@@ -31,19 +31,19 @@ architecture Behavioral of vga_driver is
 -- For polarity '0' means negative polarity
 
 -- Horizontal Axis
-	constant HD : integer := 640; -- Visiable Area
-	constant HFP : integer := 16; -- Front Porch
-	constant HSP : integer := 96; -- Sync Pulse
-	constant HBP : integer := 48; -- Back porch
-	constant HPOLARITY : std_logic := '0'; -- Polartity
+	constant HD : integer := 800; -- Visiable Area
+	constant HFP : integer := 40; -- Front Porch
+	constant HSP : integer := 128; -- Sync Pulse
+	constant HBP : integer := 88; -- Back porch
+	constant HPOLARITY : std_logic := '1'; -- Polartity
 	constant HTOTAL : integer := HD + HFP + HSP + HBP; -- Whole Line
 
 -- Vertical Axis
-	constant VD : integer := 480; -- Visiable Area
-	constant VFP : integer := 10; -- Front Porch
-	constant VSP : integer := 2; -- Sync Pulse
-	constant VBP : integer := 33; -- Back porch
-	constant VPOLARITY : std_logic := '0'; -- Polartity
+	constant VD : integer := 600; -- Visiable Area
+	constant VFP : integer := 1; -- Front Porch
+	constant VSP : integer := 4; -- Sync Pulse
+	constant VBP : integer := 23; -- Back porch
+	constant VPOLARITY : std_logic := '1'; -- Polartity
 	constant VTOTAL : integer := VD + VFP + VSP + VBP; -- Whole Line
 
 	signal s_HPos : integer := 0;
