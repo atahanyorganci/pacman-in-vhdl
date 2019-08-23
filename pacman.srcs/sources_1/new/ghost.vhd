@@ -29,20 +29,61 @@ end ghost;
 
 architecture Behavioral of ghost is
 
-	constant c_BITMAP : std_logic_vector (0 to 399) := "0000000001111000000000000011111111100000000011111111111110000001111111111111110000111111111111111110001111111111111111100111111111111111111101111111111111111111011111111111111111110111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111111";
-	constant c_BITMAP_WIDTH : integer := 20;
+	constant c_BITMAP_WIDTH : integer := 40;
+	signal s_BitmapAddr : std_logic_vector (5 downto 0) := "000000";
+	signal s_BitmapRow : std_logic_vector (39 downto 0) := "0000000000000000000000000000000000000000";
+	
+	signal s_RAMIn : std_logic_vector (31 downto 0) := "00000000000000000000000000000000";
+	signal s_RAMOut : std_logic_vector (31 downto 0) := "00000000000000000000000000000000";
+	signal s_RAMRead : std_logic_vector (0 downto 0) := "0";
+	signal s_RAMWrite : std_logic_vector (0 downto 0) := "0";
+
 	signal s_GhostHPos : integer := g_HINIT;
 	signal s_GhostVPos : integer := g_VINIT;
 	signal s_Draw : std_logic := '0';
 
 	signal s_HOffset : integer := 0;
 	signal s_VOffset : integer := 0;
-	signal s_BitmapIndex : integer := 0;
+
+COMPONENT ghost_rom
+	PORT (
+		clka : IN STD_LOGIC;
+		addra : IN STD_LOGIC_VECTOR(5 DOWNTO 0);
+		douta : OUT STD_LOGIC_VECTOR(39 DOWNTO 0)
+	);
+END COMPONENT;
+
+COMPONENT ghost_position
+	PORT (
+		clka : IN STD_LOGIC;
+		wea : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+		addra : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+		dina : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+		clkb : IN STD_LOGIC;
+		addrb : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+		doutb : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+	);
+END COMPONENT;
 
 begin
 
+c_BITMAP : ghost_rom PORT MAP (
+	clka => p_VGAClock,
+	addra => s_BitmapAddr,
+	douta => s_BitmapRow
+);
+
+c_POSITION : ghost_position PORT MAP (
+	clka => p_GameClock,
+	wea => s_RAMWrite,
+	addra => "0",
+	dina => s_RAMIn,
+	clkb => p_VGAClock,
+	addrb => "0",
+	doutb => s_RAMOut
+);
+
 move : process(p_GameClock, p_Reset)
-	
 begin
 	if (p_Reset = '1') then
 		s_GhostHPos <= g_HINIT;
@@ -68,8 +109,8 @@ begin
 		s_HOffset <= p_HPos - s_GhostHPos;
 		s_VOffset <= p_VPos - s_GhostVPos;
 		if (s_HOffset >= 0 and s_HOffset < c_BITMAP_WIDTH and s_VOffset >= 0 and s_VOffset < c_BITMAP_WIDTH) then
-			s_BitmapIndex <= s_VOffset * c_BITMAP_WIDTH + s_HOffset;
-			s_Draw <= c_BITMAP(s_BitmapIndex);
+			s_BitmapAddr <= std_logic_vector(to_unsigned(s_VOffset, s_BitmapAddr'length));
+			s_Draw <= s_BitmapRow(s_HOffset);
 		else
 			s_Draw <= '0';
 		end if;

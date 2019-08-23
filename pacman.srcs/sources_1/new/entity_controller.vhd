@@ -71,10 +71,10 @@ architecture Behavioral of entity_controller is
 begin
 
 RED_GHOST : ghost generic map (
-	g_HINIT => 130,
-	g_VINIT => 50,
-	g_HCORNER => 470,
-	g_VCORNER => 150
+	g_HINIT => 120,
+	g_VINIT => 40,
+	g_HCORNER => 440,
+	g_VCORNER => 140
 ) port map (
 	p_GameClock => p_GameClock,
 	p_VGAClock => p_VGAClock,
@@ -82,20 +82,6 @@ RED_GHOST : ghost generic map (
 	p_HPos => p_HPos,
 	p_VPos => p_VPos,
 	o_Draw => s_DrawRedGhost
-);
-
-CYAN_GHOST : ghost generic map (
-	g_HINIT => 130,
-	g_VINIT => 50,
-	g_HCORNER => 470,
-	g_VCORNER => 150
-) port map (
-	p_GameClock => p_GameClock,
-	p_VGAClock => p_VGAClock,
-	p_Reset => p_Reset,
-	p_HPos => p_HPos,
-	p_VPos => p_VPos,
-	o_Draw => s_DrawCyanGhost
 );
 
 color : process(p_VGAClock, s_Reset)
