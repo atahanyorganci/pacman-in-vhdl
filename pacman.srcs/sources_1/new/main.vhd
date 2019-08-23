@@ -9,7 +9,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use work.pacage.ALL;
 
 entity main is
 	Port (

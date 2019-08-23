@@ -9,7 +9,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 use IEEE.NUMERIC_STD.ALL;
-use work.pacage.ALL;
 
 entity entity_controller is
 	Port (
@@ -29,7 +28,7 @@ end entity_controller;
 
 architecture Behavioral of entity_controller is
 
-	signal s_Margin : std_logic := '0';
+	signal s_DrawMargin : std_logic_vector (3 downto 0) := "0000";
 
 	signal s_DrawRectangle : std_logic_vector (9 downto 0) := "0000000000";
 
@@ -66,6 +65,49 @@ architecture Behavioral of entity_controller is
 		);
 	end component;
 
+	component food
+		generic(
+			g_HINIT : integer;
+			g_VINIT : integer
+		);
+		port(
+			p_Clock  : in  std_logic;
+			p_Reset  : in  std_logic;
+			p_Enable : in  std_logic;
+			p_HPos   : in  integer range 0 to 65535;
+			p_VPos   : in  integer range 0 to 65535;
+			o_Draw   : out std_logic
+		);
+	end component food;
+
+	component player
+		port(
+			p_Clock      : in  std_logic;
+			p_Enable     : in  std_logic;
+			p_Reset      : in  std_logic;
+			p_HPos       : in  integer range 0 to 65535;
+			p_VPos       : in  integer range 0 to 65535;
+			p_PlayerHPos : in  integer range 0 to 65535;
+			p_PlayerVPos : in  integer range 0 to 65535;
+			o_Draw       : out std_logic
+		);
+	end component player;
+	
+	component rectangle
+		generic(
+			g_HCORNER : integer;
+			g_VCORNER : integer;
+			g_WIDTH   : integer;
+			g_HEIGHT  : integer
+		);
+		port(
+			p_Clock : in  std_logic;
+			p_Reset : in  std_logic;
+			p_HPos  : in  integer range 0 to 65535;
+			p_VPos  : in  integer range 0 to 65535;
+			o_Draw  : out std_logic
+		);
+	end component rectangle;
 begin
 
 RED_GHOST : ghost generic map (
@@ -87,7 +129,7 @@ begin
 	if (s_Reset = '1') then
 		s_Color <= "000";
 	elsif (rising_edge(p_VGAClock)) then
-		if (s_Margin = '1' or s_DrawRectangle /= "0000000000") then
+		if (s_DrawMargin /= "0000" or s_DrawRectangle /= "0000000000") then
 			s_Color <= "001";
 		elsif (s_DrawCyanGhost = '1') then
 			s_Color <= "011";
@@ -158,48 +200,465 @@ begin
 end process;
 o_Reset <= s_Reset;
 
-DRAW_MARGIN(p_HPos, p_VPos, s_Margin); -- margins
-DRAW_RECTANGLE(p_HPos, p_VPos, 160, 80, 120, 60,  s_DrawRectangle(0)); -- rectangle 1
-DRAW_RECTANGLE(p_HPos, p_VPos, 320, 80, 120, 60,  s_DrawRectangle(1)); -- rectangle 2
-DRAW_RECTANGLE(p_HPos, p_VPos, 160, 180, 40, 120, s_DrawRectangle(2)); -- rectangle 3
-DRAW_RECTANGLE(p_HPos, p_VPos, 240, 180, 120, 41, s_DrawRectangle(3)); -- rectangle 4
-DRAW_RECTANGLE(p_HPos, p_VPos, 400, 180, 40, 120, s_DrawRectangle(4)); -- rectangle 5
-DRAW_RECTANGLE(p_HPos, p_VPos, 280, 220, 40, 41, s_DrawRectangle(5)); -- rectangle 6
-DRAW_RECTANGLE(p_HPos, p_VPos, 240, 260, 120, 80, s_DrawRectangle(6)); -- rectangle 7
-DRAW_RECTANGLE(p_HPos, p_VPos, 160, 340, 40, 60, s_DrawRectangle(7)); -- rectangle 8
-DRAW_RECTANGLE(p_HPos, p_VPos, 240, 380, 120, 61, s_DrawRectangle(8)); -- rectangle 9
-DRAW_RECTANGLE(p_HPos, p_VPos, 400, 340, 40, 60, s_DrawRectangle(9)); -- rectangle 10
+MARGIN_UP : rectangle generic map(
+	g_HCORNER => 110,
+	g_VCORNER => 30,
+	g_WIDTH   => 370,
+	g_HEIGHT  => 10
+) port map(
+	p_Clock => p_VGAClock,
+	p_Reset => p_Reset,
+	p_HPos  => p_HPos,
+	p_VPos  => p_VPos,
+	o_Draw  => s_DrawMargin(0)
+);
 
--- Player
-DRAW_CIRCLE(p_HPos, p_VPos, p_PlayerHPos, p_PlayerVPos, s_EnablePlayer, 15, s_DrawPlayer);
+MARGIN_RIGHT : rectangle generic map(
+	g_HCORNER => 480,
+	g_VCORNER => 30,
+	g_WIDTH   => 10,
+	g_HEIGHT  => 410
+) port map(
+	p_Clock => p_VGAClock,
+	p_Reset => p_Reset,
+	p_HPos  => p_HPos,
+	p_VPos  => p_VPos,
+	o_Draw  => s_DrawMargin(1)
+);
 
--- s_DrawFood MAGENTA CIRCLES
--- FIRST LINE
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(0), 0, 0, 10, s_DrawFood(0)); -- Food 1
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(1), 80, 0, 10, s_DrawFood(1)); -- Food 2
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(2), 160, 0, 10, s_DrawFood(2)); -- Food 3
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(3), 240, 0, 10, s_DrawFood(3)); -- Food 4
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(4), 320, 0, 10, s_DrawFood(4)); -- Food 5
--- THIRD LINE
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(5), 0, 100, 10, s_DrawFood(5)); -- Food 6
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(6), 80, 100, 10, s_DrawFood(6)); -- Food 7
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(7), 160, 100, 10, s_DrawFood(7)); -- Food 8
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(8), 240, 100, 10, s_DrawFood(8)); -- Food 9
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(9), 320, 100, 10, s_DrawFood(9)); -- Food 10
--- FIFTH LINE
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(10), 0, 180, 10, s_DrawFood(10)); -- Food 11
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(11), 120, 180, 10, s_DrawFood(11)); -- Food 12
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(12), 200, 180, 10, s_DrawFood(12)); -- Food 13
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(13), 320, 180, 10, s_DrawFood(13)); -- Food 14
--- SEVENTH LINE
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(14), 0, 260, 10, s_DrawFood(14)); -- Food 15
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(15), 80, 260, 10, s_DrawFood(15)); -- Food 16
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(16), 240, 260, 10, s_DrawFood(16)); -- Food 17
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(17), 320, 260, 10, s_DrawFood(17)); -- Food 18
--- NINETH LINE
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(18), 0, 360, 10, s_DrawFood(18)); -- Food 19
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(19), 80, 360, 10, s_DrawFood(19)); -- Food 20
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(20), 240, 360, 10, s_DrawFood(20)); -- Food 21
-DRAW_FOOD(p_HPos, p_VPos, s_EnableFood(21), 320, 360, 10, s_DrawFood(21)); -- Food 22
+MARGIN_DOWN : rectangle generic map(
+	g_HCORNER => 120,
+	g_VCORNER => 440,
+	g_WIDTH   => 370,
+	g_HEIGHT  => 10
+) port map(
+	p_Clock => p_VGAClock,
+	p_Reset => p_Reset,
+	p_HPos  => p_HPos,
+	p_VPos  => p_VPos,
+	o_Draw  => s_DrawMargin(2)
+);
 
+MARGIN_LEFT : rectangle generic map(
+	g_HCORNER => 110,
+	g_VCORNER => 40,
+	g_WIDTH   => 10,
+	g_HEIGHT  => 410
+) port map(
+	p_Clock => p_VGAClock,
+	p_Reset => p_Reset,
+	p_HPos  => p_HPos,
+	p_VPos  => p_VPos,
+	o_Draw  => s_DrawMargin(3)
+);
+
+RECTANGLE00 : rectangle generic map(
+	g_HCORNER => 160,
+	g_VCORNER => 80,
+	g_WIDTH   => 120,
+	g_HEIGHT  => 60
+) port map(
+	p_Clock => p_VGAClock,
+	p_Reset => p_Reset,
+	p_HPos  => p_HPos,
+	p_VPos  => p_VPos,
+	o_Draw  => s_DrawRectangle(0)
+);
+
+RECTANGLE01 : rectangle generic map(
+	g_HCORNER => 320,
+	g_VCORNER => 80,
+	g_WIDTH   => 120,
+	g_HEIGHT  => 60
+) port map(
+	p_Clock => p_VGAClock,
+	p_Reset => p_Reset,
+	p_HPos  => p_HPos,
+	p_VPos  => p_VPos,
+	o_Draw  => s_DrawRectangle(1)
+);
+
+RECTANGLE02 : rectangle generic map(
+	g_HCORNER => 160,
+	g_VCORNER => 180,
+	g_WIDTH   => 40,
+	g_HEIGHT  => 120
+) port map(
+	p_Clock => p_VGAClock,
+	p_Reset => p_Reset,
+	p_HPos  => p_HPos,
+	p_VPos  => p_VPos,
+	o_Draw  => s_DrawRectangle(2)
+);
+
+RECTANGLE03 : rectangle generic map(
+	g_HCORNER => 240,
+	g_VCORNER => 180,
+	g_WIDTH   => 120,
+	g_HEIGHT  => 41
+) port map(
+	p_Clock => p_VGAClock,
+	p_Reset => p_Reset,
+	p_HPos  => p_HPos,
+	p_VPos  => p_VPos,
+	o_Draw  => s_DrawRectangle(3)
+);
+
+RECTANGLE04 : rectangle generic map(
+	g_HCORNER => 400,
+	g_VCORNER => 180,
+	g_WIDTH   => 40,
+	g_HEIGHT  => 120
+) port map(
+	p_Clock => p_VGAClock,
+	p_Reset => p_Reset,
+	p_HPos  => p_HPos,
+	p_VPos  => p_VPos,
+	o_Draw  => s_DrawRectangle(4)
+);
+
+RECTANGLE05 : rectangle generic map(
+	g_HCORNER => 280,
+	g_VCORNER => 220,
+	g_WIDTH   => 40,
+	g_HEIGHT  => 41
+) port map(
+	p_Clock => p_VGAClock,
+	p_Reset => p_Reset,
+	p_HPos  => p_HPos,
+	p_VPos  => p_VPos,
+	o_Draw  => s_DrawRectangle(5)
+);
+
+RECTANGLE06 : rectangle generic map(
+	g_HCORNER => 240,
+	g_VCORNER => 260,
+	g_WIDTH   => 120,
+	g_HEIGHT  => 80
+) port map(
+	p_Clock => p_VGAClock,
+	p_Reset => p_Reset,
+	p_HPos  => p_HPos,
+	p_VPos  => p_VPos,
+	o_Draw  => s_DrawRectangle(6)
+);
+
+RECTANGLE07 : rectangle generic map(
+	g_HCORNER => 160,
+	g_VCORNER => 340,
+	g_WIDTH   => 40,
+	g_HEIGHT  => 60
+) port map(
+	p_Clock => p_VGAClock,
+	p_Reset => p_Reset,
+	p_HPos  => p_HPos,
+	p_VPos  => p_VPos,
+	o_Draw  => s_DrawRectangle(7)
+);
+
+RECTANGLE08 : rectangle generic map(
+	g_HCORNER => 240,
+	g_VCORNER => 380,
+	g_WIDTH   => 120,
+	g_HEIGHT  => 61
+) port map(
+	p_Clock => p_VGAClock,
+	p_Reset => p_Reset,
+	p_HPos  => p_HPos,
+	p_VPos  => p_VPos,
+	o_Draw  => s_DrawRectangle(8)
+);
+
+RECTANGLE09 : rectangle generic map(
+	g_HCORNER => 400,
+	g_VCORNER => 340,
+	g_WIDTH   => 40,
+	g_HEIGHT  => 60
+) port map(
+	p_Clock => p_VGAClock,
+	p_Reset => p_Reset,
+	p_HPos  => p_HPos,
+	p_VPos  => p_VPos,
+	o_Draw  => s_DrawRectangle(9)
+);
+
+c_PLAYER : player port map(
+	p_Clock      => p_VGAClock,
+	p_Enable     => s_EnablePlayer,
+	p_Reset      => p_Reset,
+	p_HPos       => p_HPos,
+	p_VPos       => p_VPos,
+	p_PlayerHPos => p_PlayerHPos,
+	p_PlayerVPos => p_PlayerVPos,
+	o_Draw       => s_DrawPlayer
+);
+
+-- First Line
+FOOD00 : food generic map(
+	g_HINIT => 120,
+	g_VINIT => 40
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(0),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(0)
+);
+
+FOOD01 : food generic map(
+	g_HINIT => 200,
+	g_VINIT => 40
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(1),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(1)
+);
+
+FOOD02 : food generic map(
+	g_HINIT => 280,
+	g_VINIT => 40
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(2),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(2)
+);
+
+FOOD03 : food generic map(
+	g_HINIT => 360,
+	g_VINIT => 40
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(3),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(3)
+);
+
+FOOD04 : food generic map(
+	g_HINIT => 440,
+	g_VINIT => 40
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(4),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(4)
+);
+
+-- Second Line
+FOOD05 : food generic map(
+	g_HINIT => 120,
+	g_VINIT => 140
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(5),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(5)
+);
+
+FOOD06 : food generic map(
+	g_HINIT => 200,
+	g_VINIT => 140
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(6),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(6)
+);
+
+FOOD07 : food generic map(
+	g_HINIT => 280,
+	g_VINIT => 140
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(7),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(7)
+);
+
+FOOD08 : food generic map(
+	g_HINIT => 360,
+	g_VINIT => 140
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(8),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(8)
+);
+
+FOOD09 : food generic map(
+	g_HINIT => 440,
+	g_VINIT => 140
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(9),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(9)
+);
+
+-- Third Line
+FOOD10 : food generic map(
+	g_HINIT => 120,
+	g_VINIT => 220
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(10),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(10)
+);
+
+FOOD11 : food generic map(
+	g_HINIT => 240,
+	g_VINIT => 220
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(11),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(11)
+);
+
+FOOD12 : food generic map(
+	g_HINIT => 320,
+	g_VINIT => 220
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(12),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(12)
+);
+
+FOOD13 : food generic map(
+	g_HINIT => 440,
+	g_VINIT => 220
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(13),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(13)
+);
+
+-- Forth Line
+FOOD14 : food generic map(
+	g_HINIT => 120,
+	g_VINIT => 300
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(14),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(14)
+);
+
+FOOD15 : food generic map(
+	g_HINIT => 200,
+	g_VINIT => 300
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(15),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(15)
+);
+
+FOOD16 : food generic map(
+	g_HINIT => 360,
+	g_VINIT => 300
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(16),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(16)
+);
+
+FOOD17 : food generic map(
+	g_HINIT => 440,
+	g_VINIT => 300
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(17),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(17)
+);
+
+-- Fifth Line
+FOOD18 : food generic map(
+	g_HINIT => 120,
+	g_VINIT => 400
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(18),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(18)
+);
+
+FOOD19 : food generic map(
+	g_HINIT => 200,
+	g_VINIT => 400
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(19),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(19)
+);
+
+FOOD20 : food generic map(
+	g_HINIT => 360,
+	g_VINIT => 400
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(20),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(20)
+);
+
+FOOD21 : food generic map(
+	g_HINIT => 440,
+	g_VINIT => 400
+) port map(
+	p_Clock  => p_VGAClock,
+	p_Reset  => p_Reset,
+	p_Enable => s_EnableFood(21),
+	p_HPos   => p_HPos,
+	p_VPos   => p_VPos,
+	o_Draw   => s_DrawFood(21)
+);
 end Behavioral;
