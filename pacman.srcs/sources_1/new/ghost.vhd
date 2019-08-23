@@ -21,8 +21,8 @@ entity ghost is
 		p_GameClock : in std_logic;
 		p_VGAClock : in std_logic;
 		p_Reset : in std_logic;
-		p_HPos : in integer;
-		p_VPos: in integer;
+		p_HPos : in integer range 0 to 65535;
+		p_VPos: in integer range 0 to 65535;
 		o_Draw : out std_logic
 	);
 end ghost;
@@ -35,15 +35,16 @@ architecture Behavioral of ghost is
 	
 	signal s_RAMIn : std_logic_vector (31 downto 0) := "00000000000000000000000000000000";
 	signal s_RAMOut : std_logic_vector (31 downto 0) := "00000000000000000000000000000000";
-	signal s_RAMRead : std_logic_vector (0 downto 0) := "0";
-	signal s_RAMWrite : std_logic_vector (0 downto 0) := "0";
 
-	signal s_GhostHPos : integer := g_HINIT;
-	signal s_GhostVPos : integer := g_VINIT;
+	signal s_GhostHPos : integer range 0 to 65535 := g_HINIT;
+	signal s_GhostVPos : integer range 0 to 65535 := g_VINIT;
+	signal s_HPosSlow : std_logic_vector (15 downto 0) := "0000000000000000";
+	signal s_VPosSlow : std_logic_vector (15 downto 0) := "0000000000000000";
+
 	signal s_Draw : std_logic := '0';
 
-	signal s_HOffset : integer := 0;
-	signal s_VOffset : integer := 0;
+	signal s_HOffset : integer range 0 to 65535 := 0;
+	signal s_VOffset : integer range 0 to 65535 := 0;
 
 COMPONENT ghost_rom
 	PORT (
@@ -75,7 +76,7 @@ c_BITMAP : ghost_rom PORT MAP (
 
 c_POSITION : ghost_position PORT MAP (
 	clka => p_GameClock,
-	wea => s_RAMWrite,
+	wea => "1",
 	addra => "0",
 	dina => s_RAMIn,
 	clkb => p_VGAClock,
@@ -98,16 +99,19 @@ begin
 		elsif (s_GhostVPos = g_VINIT and s_GhostHPos > g_HINIT) then 
 			s_GhostHPos <= s_GhostHPos - 1;
 		end if;
+		s_HPosSlow <= std_logic_vector(to_unsigned(s_GhostHPos, s_HPosSlow'length));
+		s_VPosSlow <= std_logic_vector(to_unsigned(s_GhostVPos, s_VPosSlow'length));
 	end if;
 end process;
+s_RAMIn <= s_VPosSlow & s_HPosSlow;
 
 draw : process(p_VGAClock, p_Reset)
 begin
 	if (p_Reset = '1') then
 		s_Draw <= '0';
 	elsif (rising_edge(p_VGAClock)) then
-		s_HOffset <= p_HPos - s_GhostHPos;
-		s_VOffset <= p_VPos - s_GhostVPos;
+		s_HOffset <= p_HPos - to_integer(unsigned(s_RAMOut(15 downto 0)));
+		s_VOffset <= p_VPos - to_integer(unsigned(s_RAMOut(31 downto 16)));
 		if (s_HOffset >= 0 and s_HOffset < c_BITMAP_WIDTH and s_VOffset >= 0 and s_VOffset < c_BITMAP_WIDTH) then
 			s_BitmapAddr <= std_logic_vector(to_unsigned(s_VOffset, s_BitmapAddr'length));
 			s_Draw <= s_BitmapRow(s_HOffset);

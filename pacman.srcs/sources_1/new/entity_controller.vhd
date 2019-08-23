@@ -32,13 +32,11 @@ architecture Behavioral of entity_controller is
 	signal s_Margin : std_logic := '0';
 
 	signal s_DrawRectangle : std_logic_vector (9 downto 0) := "0000000000";
-	signal s_DrawingRectangle : std_logic := '0';
 
 	signal s_DrawPlayer : std_logic := '0';
 	signal s_EnablePlayer : std_logic := '0';
 
 	signal s_DrawFood : std_logic_vector (21 downto 0) := "0000000000000000000000";
-	signal s_DrawingFood : std_logic := '0';
 	signal s_EnableFood : std_logic_vector (21 downto 0) := "1111111111111111111111";
 
 	signal s_DrawRedGhost : std_logic := '0';
@@ -62,8 +60,8 @@ architecture Behavioral of entity_controller is
 			p_GameClock : in std_logic;
 			p_VGAClock : in std_logic;
 			p_Reset : in std_logic;
-			p_HPos : in integer;
-			p_VPos: in integer;
+			p_HPos : in integer range 0 to 65535;
+			p_VPos: in integer range 0 to 65535;
 			o_Draw : out std_logic
 		);
 	end component;

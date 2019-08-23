@@ -1,7 +1,15 @@
-.vscode
+# Vivado
 pacman.cache
 pacman.hw
 pacman.ip_user_files
 pacman.runs
 pacman.sim
 ip
+
+# VS Code
+.vscode
+
+# Sigasi
+.settings
+.library_mapping.xml
+.project

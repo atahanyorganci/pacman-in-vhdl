@@ -25,8 +25,6 @@ architecture Behavioral of ssd_controller is
 	constant c_MAXCOUNT : integer := 500000;
 	signal s_Temp : std_logic_vector (1 downto 0);
 	signal s_MuxOutput : integer range 0 to 32 := 0;
-	signal s_ScoreVector : std_logic_vector (15 downto 0);
-	signal s_HighscoreVector : std_logic_vector (15 downto 0);
 
 begin
 
