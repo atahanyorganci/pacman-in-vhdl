@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
 -- Engineer: Atahan Yorganci
--- Create Date: 22.08.2019
+-- Create Date: 26.08.2019
 -- Module Name: Entity Controller - Behavioral
 -- Project Name: Pacman
 -- Target Devices: BASYS 3
@@ -110,20 +110,6 @@ architecture Behavioral of entity_controller is
 	end component rectangle;
 begin
 
-RED_GHOST : ghost generic map (
-	g_HINIT => 120,
-	g_VINIT => 40,
-	g_HCORNER => 440,
-	g_VCORNER => 140
-) port map (
-	p_GameClock => p_GameClock,
-	p_VGAClock => p_VGAClock,
-	p_Reset => p_Reset,
-	p_HPos => p_HPos,
-	p_VPos => p_VPos,
-	o_Draw => s_DrawRedGhost
-);
-
 color : process(p_VGAClock, s_Reset)
 begin
 	if (s_Reset = '1') then
@@ -151,7 +137,7 @@ detectEat : process(p_VGAClock, s_Reset)
 begin
 	if (s_Reset = '1') then
 		s_Score <= 0;
-		s_EnableFood <= "1111111111111111111111";
+		s_EnableFood <= (others => '1');
 	elsif (rising_edge(p_VGAClock)) then
 		for i in 0 to 21 loop
 			if(s_DrawFood(i) = '1' AND s_DrawPlayer = '1') then
@@ -176,7 +162,7 @@ o_Highscore <= s_Highscore;
 -- Detect Spook
 detectSpook : process(p_VGAClock, s_Reset)
 begin
-	if (s_Reset = '0') then
+	if (s_Reset = '1') then
 		s_EnablePlayer <= '1';
 	elsif (rising_edge(p_VGAClock)) then
 		if (s_DrawPlayer = '1' AND (s_DrawCyanGhost = '1' OR s_DrawRedGhost = '1')) then
@@ -199,6 +185,36 @@ begin
 	end if;
 end process;
 o_Reset <= s_Reset;
+
+RED_GHOST : ghost generic map (
+	g_HINIT => 120,
+	g_VINIT => 40,
+	g_HCORNER => 440,
+	g_VCORNER => 140
+) port map (
+	p_GameClock => p_GameClock,
+	p_VGAClock => p_VGAClock,
+	p_Reset => p_Reset,
+	p_HPos => p_HPos,
+	p_VPos => p_VPos,
+	o_Draw => s_DrawRedGhost
+);
+
+CYAN_GHOST : ghost
+	generic map(
+		g_HINIT   => 200,
+		g_VINIT   => 140,
+		g_HCORNER => 360,
+		g_VCORNER => 340
+	)
+	port map(
+		p_GameClock => p_GameClock,
+		p_VGAClock  => p_VGAClock,
+		p_Reset     => p_Reset,
+		p_HPos      => p_HPos,
+		p_VPos      => p_VPos,
+		o_Draw      => s_DrawCyanGhost
+	);
 
 MARGIN_UP : rectangle generic map(
 	g_HCORNER => 110,

@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
 -- Engineer: Atahan Yorganci
--- Create Date: 21.08.2019
+-- Create Date: 26.08.2019
 -- Module Name: Main - Behavioral
 -- Project Name: Pacman
 -- Target Devices: BASYS 3
@@ -27,19 +27,19 @@ end main;
 
 architecture Behavioral of main is
 
-	component clock_driver is
+	component clock_divider is
 		port (
 			p_Clock	: IN std_logic;
 			o_GameClock : out std_logic
 		);
 	end component;
 
-	component clk_wiz_0 is
-		port (
-			clk_out1 : out std_logic;
-			reset : in std_logic;
-			locked : out std_logic;
-			clk_in1 : in std_logic
+	component vga_clock
+		Port (
+		clk_out: out std_logic;
+		reset : in std_logic;
+		locked : out std_logic;
+		clk_in1 : in std_logic
 		);
 	end component;
 
@@ -100,8 +100,9 @@ architecture Behavioral of main is
 	-- Clock Driver Output
 	signal s_GameClock : std_logic := '0';
 
-	-- IP Clock
+	-- VGA Clock
 	signal s_VGALocked : std_logic := '0';
+	signal s_VGANotLocked : std_logic := '0';
 	signal s_VGAClock : std_logic := '0';
 
 	-- Entity Controller Output
@@ -120,22 +121,23 @@ architecture Behavioral of main is
 
 begin
 
-GAME_LOGIC_CLOCK : clock_driver port map(
+GAME_LOGIC_CLOCK : clock_divider port map(
 	p_Clock => CLOCK,
 	o_GameClock => s_GameClock
 );
 
-VGA_CLOCK : clk_wiz_0 port map (
-	clk_out1 => s_VGAClock,
-	reset => '0',
+VGA_CLOCK_IP : vga_clock port map (
+	clk_out => s_VGAClock,
+	reset => RESET,
 	locked => s_VGALocked,
 	clk_in1 => CLOCK
 );
+s_VGANotLocked <= not s_VGALocked;
 
 ENTITY_CONTROL : entity_controller port map (
 	p_VGAClock => s_VGAClock,
 	p_GameClock => s_GameClock,
-	p_Reset => RESET,
+	p_Reset => s_VGANotLocked,
 	p_HPos => s_HPos,
 	p_VPos => s_VPos,
 	p_PlayerHPos => s_PlayerHPos,

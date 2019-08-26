@@ -54,7 +54,7 @@ COMPONENT ghost_rom
 	);
 END COMPONENT;
 
-COMPONENT ghost_position
+COMPONENT ghost_ram
 	PORT (
 		clka : IN STD_LOGIC;
 		wea : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
@@ -74,7 +74,7 @@ c_BITMAP : ghost_rom PORT MAP (
 	douta => s_BitmapRow
 );
 
-c_POSITION : ghost_position PORT MAP (
+c_POSITION : ghost_ram PORT MAP (
 	clka => p_GameClock,
 	wea => "1",
 	addra => "0",

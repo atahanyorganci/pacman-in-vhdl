@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------------------
 -- Engineer: Atahan Yorganci
--- Create Date: 21.08.2019
--- Module Name: Seven Segment Driver - Behavioral
+-- Create Date: 26.08.2019
+-- Module Name: Seven Segment Display Driver - Behavioral
 -- Project Name: Pacman
 -- Target Devices: BASYS 3
 ----------------------------------------------------------------------------------

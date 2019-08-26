@@ -132,18 +132,18 @@ end process;
 colorOutput : process(p_Clock, p_Reset)
 begin
 	if (p_Reset = '1') then
-		s_VGARed <= "0000";
-		s_VGAGreen <= "0000";
-		s_VGABlue <= "0000";
+		s_VGARed  <= (others => '1');
+		s_VGAGreen <= (others => '1');
+		s_VGABlue <= (others => '1');
 	elsif (rising_edge(p_Clock)) then
 		if (s_VideoOn = '1') then
 			s_VGARed <= p_Color(2) & p_Color(2) & p_Color(2) & p_Color(2);
 			s_VGAGreen <= p_Color(1) & p_Color(1) & p_Color(1) & p_Color(1);
 			s_VGABlue <= p_Color(0) & p_Color(0) & p_Color(0) & p_Color(0);
 		else
-			s_VGARed <= "0000";
-			s_VGAGreen <= "0000";
-			s_VGABlue <= "0000";
+			s_VGARed  <= (others => '1');
+			s_VGAGreen <= (others => '1');
+			s_VGABlue <= (others => '1');
 		end if ;
 	end if;
 end process;

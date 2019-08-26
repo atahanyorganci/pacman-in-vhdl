@@ -1,7 +1,7 @@
 ----------------------------------------------------------------------------------
 -- Engineer: Atahan Yorganci
--- Create Date: 22.08.2019
--- Module Name: Entity Controller - Behavioral
+-- Create Date: 26.08.2019
+-- Module Name: User I/O - Behavioral
 -- Project Name: Pacman
 -- Target Devices: BASYS 3
 ----------------------------------------------------------------------------------

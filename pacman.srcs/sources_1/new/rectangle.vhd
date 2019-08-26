@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------
 -- Engineer: Atahan Yorganci
--- Create Date: 21.08.2019
+-- Create Date: 26.08.2019
 -- Module Name: Rectangle - Behavioral
 -- Project Name: Pacman
 -- Target Devices: BASYS 3
