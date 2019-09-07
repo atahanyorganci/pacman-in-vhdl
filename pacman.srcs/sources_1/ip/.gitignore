@@ -1,0 +1,17 @@
+*.dcp
+*.log
+*.mif
+*.v
+*.vh
+*.vhdl
+*.vho
+*.veo
+*.xdc
+*.xml
+
+doc
+hdl
+misc
+sim
+simulation
+synth
