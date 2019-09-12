@@ -12,39 +12,42 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity main is
 	Port(
-		CLOCK                 : in  std_logic;
-		RESET                 : in  std_logic;
-		DOWN, UP, LEFT, RIGHT : in  std_logic;
-		ANODE                 : out std_logic_vector(3 downto 0);
-		CATHODE               : out std_logic_vector(6 downto 0);
-		VGA_VS                : out std_logic;
-		VGA_HS                : out std_logic;
-		VGA_RED               : out std_logic_vector(3 downto 0);
-		VGA_BLUE              : out std_logic_vector(3 downto 0);
-		VGA_GREEN             : out std_logic_vector(3 downto 0)
+		CLOCK     : in  std_logic;
+		RESET     : in  std_logic;
+		RX        : in  std_logic;
+		ANODE     : out std_logic_vector(3 downto 0);
+		CATHODE   : out std_logic_vector(6 downto 0);
+		VGA_VS    : out std_logic;
+		VGA_HS    : out std_logic;
+		VGA_RED   : out std_logic_vector(3 downto 0);
+		VGA_BLUE  : out std_logic_vector(3 downto 0);
+		VGA_GREEN : out std_logic_vector(3 downto 0)
 	);
 end main;
 
 architecture Behavioral of main is
 
-	component clock_divider is
-		Port(
-			p_Clock     : IN  std_logic;
-			o_GameClock : out std_logic
+	component io
+		port(
+			p_Clock     : in  std_logic;
+			p_Reset     : in  std_logic;
+			p_Rx        : in  std_logic;
+			o_Clock     : out std_logic;
+			o_Direction : out std_logic_vector(3 downto 0)
+		);
+	end component io;
+
+	component clock_wizard
+		port(
+			vga_clock : out std_logic;
+			reset     : in  std_logic;
+			locked    : out std_logic;
+			clock_in  : in  std_logic
 		);
 	end component;
 
-	component vga_clock
-		Port(
-			clk_out : out std_logic;
-			reset   : in  std_logic;
-			locked  : out std_logic;
-			clk_in1 : in  std_logic
-		);
-	end component;
-
-	component entity_controller is
-		Port(
+	component entity_controller
+		port(
 			p_VGAClock   : in  std_logic;
 			p_GameClock  : in  std_logic;
 			p_Reset      : in  std_logic;
@@ -53,34 +56,31 @@ architecture Behavioral of main is
 			p_PlayerHPos : in  integer;
 			p_PlayerVPos : in  integer;
 			o_Color      : out std_logic_vector(2 downto 0);
-			o_Score      : out integer range 0 to 65535;
-			o_Highscore  : out integer range 0 to 65535;
+			o_Data       : out std_logic_vector(15 downto 0);
 			o_Reset      : out std_logic
 		);
-	end component;
+	end component entity_controller;
 
-	component ssd_controller is
-		Port(
-			p_Clock     : in  std_logic;
-			p_Score     : in  integer range 0 to 65535;
-			p_Highscore : in  integer range 0 to 65535;
-			o_Anode     : out std_logic_vector(3 downto 0);
-			o_Cathode   : out std_logic_vector(6 downto 0)
+	component ssd_controller
+		generic(g_CLOCK_FREQ : integer);
+		port(
+			p_Clock   : in  std_logic;
+			p_Reset   : in  std_logic;
+			p_Data    : in  std_logic_vector(15 downto 0);
+			o_Anode   : out std_logic_vector(3 downto 0);
+			o_Cathode : out std_logic_vector(6 downto 0)
 		);
-	end component;
+	end component ssd_controller;
 
-	component user_io is
-		Port(
-			p_Left       : in  std_logic;
-			p_Up         : in  std_logic;
-			p_Down       : in  std_logic;
-			p_Right      : in  std_logic;
+	component user
+		port(
+			p_Direction  : in  std_logic_vector(3 downto 0);
 			p_Clock      : in  std_logic;
 			p_Reset      : in  std_logic;
 			o_PlayerHPos : out integer;
 			o_PlayerVPos : out integer
 		);
-	end component;
+	end component user;
 
 	component vga_driver is
 		Port(
@@ -98,84 +98,88 @@ architecture Behavioral of main is
 	end component;
 
 	-- Clock Driver Output
-	signal s_GameClock : std_logic := '0';
+	signal s_GameClock : std_logic;
 
 	-- VGA Clock
-	signal s_VGALocked    : std_logic := '0';
-	signal s_VGANotLocked : std_logic := '0';
-	signal s_VGAClock     : std_logic := '0';
+	signal s_VGAClock : std_logic;
+	signal s_Locked   : std_logic;
+	signal s_Reset    : std_logic;
 
 	-- Entity Controller Output
-	signal s_Color     : std_logic_vector(2 downto 0) := "000";
-	signal s_Score     : integer range 0 to 65535     := 0;
-	signal s_Highscore : integer range 0 to 65535     := 0;
-	signal s_Reset     : std_logic                    := '0';
+	signal s_Color : std_logic_vector(2 downto 0);
+	signal s_Score : std_logic_vector(15 downto 0);
+	signal s_GameReset : std_logic;
 
-	-- User I/O Output
-	signal s_PlayerHPos : integer := 0;
-	signal s_PlayerVPos : integer := 0;
+	-- User
+	signal s_PlayerHPos : integer;
+	signal s_PlayerVPos : integer;
 
 	-- VGA Driver Output
 	signal s_HPos : integer := 0;
 	signal s_VPos : integer := 0;
 
+	-- IO
+	signal s_Direction : std_logic_vector(3 downto 0);
+
 begin
 
-	GAME_LOGIC_CLOCK : clock_divider
-		Port map(
-			p_Clock     => CLOCK,
-			o_GameClock => s_GameClock
+	my_wizard : clock_wizard
+		port map(
+			vga_clock => s_VGAClock,
+			reset     => RESET,
+			locked    => s_Locked,
+			clock_in  => CLOCK
 		);
+	s_Reset <= not s_Locked;
 
-	VGA_CLOCK_IP : vga_clock
-		Port map(
-			clk_out => s_VGAClock,
-			reset   => RESET,
-			locked  => s_VGALocked,
-			clk_in1 => CLOCK
-		);
-	s_VGANotLocked <= not s_VGALocked;
-
-	ENTITY_CONTROL : entity_controller
+	my_controller : entity_controller
 		Port map(
 			p_VGAClock   => s_VGAClock,
 			p_GameClock  => s_GameClock,
-			p_Reset      => s_VGANotLocked,
+			p_Reset      => s_Reset,
 			p_HPos       => s_HPos,
 			p_VPos       => s_VPos,
 			p_PlayerHPos => s_PlayerHPos,
 			p_PlayerVPos => s_PlayerVPos,
 			o_Color      => s_Color,
-			o_Score      => s_Score,
-			o_Highscore  => s_Highscore,
-			o_Reset      => s_Reset
+			o_Data       => s_Score,
+			o_Reset      => s_GameReset
 		);
 
-	SSD : ssd_controller
+	my_ssd : ssd_controller
+		generic map(
+			g_CLOCK_FREQ => 40_000_000
+		)
 		Port map(
-			p_Clock     => CLOCK,
-			p_Score     => s_Score,
-			p_Highscore => s_Highscore,
-			o_Anode     => ANODE,
-			o_Cathode   => CATHODE
+			p_Reset   => s_Reset,
+			p_Clock   => s_VGAClock,
+			p_Data    => s_Score,
+			o_Anode   => ANODE,
+			o_Cathode => CATHODE
 		);
 
-	USER : user_io
-		Port map(
-			p_Left       => LEFT,
-			p_Up         => UP,
-			p_Down       => DOWN,
-			p_Right      => RIGHT,
+	my_player : user
+		port map(
+			p_Direction  => s_Direction,
 			p_Clock      => s_GameClock,
-			p_Reset      => s_Reset,
+			p_Reset      => s_GameReset,
 			o_PlayerHPos => s_PlayerHPos,
 			o_PlayerVPos => s_PlayerVPos
 		);
 
-	VGA : vga_driver
+	my_io : io
+		port map(
+			p_Clock     => s_VGAClock,
+			p_Reset     => s_Reset,
+			p_Rx        => RX,
+			o_Clock     => s_GameClock,
+			o_Direction => s_Direction
+		);
+
+	my_vga : vga_driver
 		Port map(
 			p_Clock    => s_VGAClock,
-			p_Reset    => s_Reset,
+			p_Reset    => s_GameReset,
 			p_Color    => s_Color,
 			o_HPos     => s_HPos,
 			o_VPos     => s_VPos,

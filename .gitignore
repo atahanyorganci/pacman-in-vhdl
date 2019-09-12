@@ -1,9 +1,12 @@
 # Vivado
-pacman.cache
-pacman.hw
-pacman.ip_user_files
-pacman.runs
-pacman.sim
+*.cache
+*.hw
+*.ioplanning
+*.ip_user_files
+*.runs
+*.sim
+.Xil/
+vivado*.*
 
 # VS Code
 .vscode

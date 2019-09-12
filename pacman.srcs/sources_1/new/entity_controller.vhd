@@ -20,33 +20,32 @@ entity entity_controller is
 		p_PlayerHPos : in  integer;
 		p_PlayerVPos : in  integer;
 		o_Color      : out std_logic_vector(2 downto 0);
-		o_Score      : out integer range 0 to 65535;
-		o_Highscore  : out integer range 0 to 65535;
+		o_Data       : out std_logic_vector(15 downto 0);
 		o_Reset      : out std_logic
 	);
 end entity_controller;
 
 architecture Behavioral of entity_controller is
 
-	signal s_DrawMargin : std_logic_vector(3 downto 0) := "0000";
+	signal s_DrawMargin : std_logic_vector(3 downto 0);
 
-	signal s_DrawRectangle : std_logic_vector(9 downto 0) := "0000000000";
+	signal s_DrawRectangle : std_logic_vector(9 downto 0);
 
 	signal s_DrawPlayer   : std_logic := '0';
 	signal s_EnablePlayer : std_logic := '0';
 
-	signal s_DrawFood   : std_logic_vector(21 downto 0) := "0000000000000000000000";
-	signal s_EnableFood : std_logic_vector(21 downto 0) := "1111111111111111111111";
+	signal s_DrawFood   : std_logic_vector(21 downto 0);
+	signal s_EnableFood : std_logic_vector(21 downto 0);
 
 	signal s_DrawRedGhost  : std_logic := '0';
 	signal s_DrawCyanGhost : std_logic := '0';
 
 	signal s_Reset : std_logic := '0';
 
-	signal s_Color : std_logic_vector(2 downto 0) := "000";
+	signal s_Color : std_logic_vector(2 downto 0);
 
-	signal s_Score     : integer range 0 to 65535 := 0;
-	signal s_Highscore : integer range 0 to 65535 := 0;
+	signal s_Highscore : std_logic_vector(7 downto 0);
+	signal s_Score     : std_logic_vector(7 downto 0);
 
 	component ghost is
 		generic(
@@ -109,6 +108,8 @@ architecture Behavioral of entity_controller is
 		);
 	end component rectangle;
 begin
+	
+	o_Data <= s_Highscore & s_Score;
 
 	color : process(p_VGAClock, s_Reset)
 	begin
@@ -136,28 +137,29 @@ begin
 	detectEat : process(p_VGAClock, s_Reset)
 	begin
 		if (s_Reset = '1') then
-			s_Score      <= 0;
+			s_Score      <= (others => '0');
 			s_EnableFood <= (others => '1');
 		elsif (rising_edge(p_VGAClock)) then
 			for i in 0 to 21 loop
 				if (s_DrawFood(i) = '1' AND s_DrawPlayer = '1') then
 					s_EnableFood(i) <= '0';
-					s_Score         <= s_Score + 1;
+					s_Score         <= std_logic_vector(unsigned(s_Score) + 1);
 				end if;
 			end loop;
 		end if;
 	end process;
-	o_Score <= s_Score;
 
-	highscore : process(p_VGAClock, s_Reset)
+	highscore : process (p_VGAClock, s_Reset) is
 	begin
-		if (rising_edge(p_VGAClock) and s_Reset = '0') then
-			if (s_Score >= s_Highscore) then
+		if s_Reset = '1' then
+			s_Highscore <= (others => '0');
+		elsif rising_edge(p_VGAClock) then
+			if to_integer(unsigned(s_Score)) > to_integer(unsigned(s_Highscore)) then
 				s_Highscore <= s_Score;
 			end if;
 		end if;
-	end process;
-	o_Highscore <= s_Highscore;
+	end process highscore;
+	
 
 	-- Detect Spook
 	detectSpook : process(p_VGAClock, s_Reset)

@@ -9,20 +9,17 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
-entity user_io is
+entity user is
 	Port(
-		p_Left       : in  std_logic;
-		p_Up         : in  std_logic;
-		p_Down       : in  std_logic;
-		p_Right      : in  std_logic;
+		p_Direction  : in  std_logic_vector(3 downto 0);
 		p_Clock      : in  std_logic;
 		p_Reset      : in  std_logic;
 		o_PlayerHPos : out integer;
 		o_PlayerVPos : out integer
 	);
-end user_io;
+end user;
 
-architecture Behavioral of user_io is
+architecture Behavioral of user is
 
 	signal s_PlayerH : integer;
 	signal s_PlayerV : integer;
@@ -35,7 +32,7 @@ begin
 			s_PlayerH <= 281;
 			s_PlayerV <= 91;
 		elsif (rising_edge(p_Clock)) then
-			if (p_Left = '1') then
+			if (p_Direction(0) = '1') then
 				if (s_PlayerV < 80 and s_PlayerV > 40) then
 					if (s_PlayerH - 1 > 120) then
 						s_PlayerH <= s_PlayerH - 1;
@@ -111,7 +108,7 @@ begin
 				else
 					s_PlayerH <= s_PlayerH - 1;
 				end if;
-			elsif (p_Right = '1') then
+			elsif (p_Direction(1) = '1') then
 				if (s_PlayerV < 80 and s_PlayerV > 40) then
 					if (s_PlayerH + 31 < 480) then
 						s_PlayerH <= s_PlayerH + 1;
@@ -185,7 +182,7 @@ begin
 				else
 					s_PlayerH <= s_PlayerH + 1;
 				end if;
-			elsif (p_Down = '1') then
+			elsif (p_Direction(3) = '1') then
 				if (s_PlayerH < 240 and s_PlayerV > 200) or (s_PlayerV < 400 and s_PlayerV > 360) then
 					if (s_PlayerV + 31 < 440) then
 						s_PlayerV <= s_PlayerV + 1;
@@ -247,7 +244,7 @@ begin
 				else
 					s_PlayerV <= s_PlayerV + 1;
 				end if;
-			elsif (p_Up = '1') then
+			elsif (p_Direction(3) = '1') then
 				if (s_PlayerH < 240 and s_PlayerV > 200) or (s_PlayerV < 400 and s_PlayerV > 360) then
 					if (s_PlayerV - 1 > 40) then
 						s_PlayerV <= s_PlayerV - 1;
