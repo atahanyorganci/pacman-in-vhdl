@@ -5,8 +5,9 @@
 *.ip_user_files
 *.runs
 *.sim
-.Xil/
+.Xil
 vivado*.*
+*.log
 
 # VS Code
 .vscode

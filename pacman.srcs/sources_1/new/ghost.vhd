@@ -19,7 +19,7 @@ entity ghost is
 	);
 	Port(
 		p_GameClock : in  std_logic;
-		p_VGAClock  : in  std_logic;
+		p_Clock     : in  std_logic;
 		p_Reset     : in  std_logic;
 		p_HPos      : in  integer range 0 to 65535;
 		p_VPos      : in  integer range 0 to 65535;
@@ -29,17 +29,18 @@ end ghost;
 
 architecture Behavioral of ghost is
 
-	constant c_BITMAP_WIDTH : integer                       := 40;
-	signal s_BitmapAddr     : std_logic_vector(5 downto 0)  := "000000";
-	signal s_BitmapRow      : std_logic_vector(39 downto 0) := "0000000000000000000000000000000000000000";
+	constant c_BITMAP_WIDTH : integer := 40;
 
-	signal s_RAMIn  : std_logic_vector(31 downto 0) := "00000000000000000000000000000000";
-	signal s_RAMOut : std_logic_vector(31 downto 0) := "00000000000000000000000000000000";
+	signal s_BitmapAddr : std_logic_vector(5 downto 0);
+	signal s_BitmapRow  : std_logic_vector(39 downto 0);
 
-	signal s_GhostHPos : integer range 0 to 65535      := g_HINIT;
-	signal s_GhostVPos : integer range 0 to 65535      := g_VINIT;
-	signal s_HPosSlow  : std_logic_vector(15 downto 0) := "0000000000000000";
-	signal s_VPosSlow  : std_logic_vector(15 downto 0) := "0000000000000000";
+	signal s_RAMIn  : std_logic_vector(31 downto 0);
+	signal s_RAMOut : std_logic_vector(31 downto 0);
+
+	signal s_GhostHPos : integer range 0 to 65535;
+	signal s_GhostVPos : integer range 0 to 65535;
+	signal s_HPosSlow  : std_logic_vector(15 downto 0);
+	signal s_VPosSlow  : std_logic_vector(15 downto 0);
 
 	signal s_Draw : std_logic := '0';
 
@@ -54,7 +55,7 @@ architecture Behavioral of ghost is
 		);
 	END COMPONENT;
 
-	COMPONENT ghost_ram
+	COMPONENT position_ram
 		Port(
 			clka  : IN  STD_LOGIC;
 			wea   : IN  STD_LOGIC_VECTOR(0 DOWNTO 0);
@@ -68,30 +69,36 @@ architecture Behavioral of ghost is
 
 begin
 
+	s_RAMIn <= s_VPosSlow & s_HPosSlow;
+
 	c_BITMAP : ghost_rom
 		Port MAP(
-			clka  => p_VGAClock,
+			clka  => p_Clock,
 			addra => s_BitmapAddr,
 			douta => s_BitmapRow
 		);
 
-	c_POSITION : ghost_ram
+	c_POSITION : position_ram
 		Port MAP(
 			clka  => p_GameClock,
 			wea   => "1",
 			addra => "0",
 			dina  => s_RAMIn,
-			clkb  => p_VGAClock,
+			clkb  => p_Clock,
 			addrb => "0",
 			doutb => s_RAMOut
 		);
 
 	move : process(p_GameClock, p_Reset)
 	begin
-		if (p_Reset = '1') then
+		if p_Reset = '1' then
 			s_GhostHPos <= g_HINIT;
 			s_GhostVPos <= g_VINIT;
-		elsif (rising_edge(p_GameClock)) then
+			s_HPosSlow  <= std_logic_vector(to_unsigned(g_HINIT, s_HPosSlow'length));
+			s_VPosSlow  <= std_logic_vector(to_unsigned(g_VINIT, s_VPosSlow'length));
+		elsif rising_edge(p_GameClock) then
+			s_HPosSlow <= std_logic_vector(to_unsigned(s_GhostHPos, s_HPosSlow'length));
+			s_VPosSlow <= std_logic_vector(to_unsigned(s_GhostVPos, s_VPosSlow'length));
 			if (s_GhostHPos = g_HINIT and s_GhostVPos < g_VCORNER) then
 				s_GhostVPos <= s_GhostVPos + 1;
 			elsif (s_GhostVPos = g_VCORNER and s_GhostHPos < g_HCORNER) then
@@ -101,17 +108,17 @@ begin
 			elsif (s_GhostVPos = g_VINIT and s_GhostHPos > g_HINIT) then
 				s_GhostHPos <= s_GhostHPos - 1;
 			end if;
-			s_HPosSlow <= std_logic_vector(to_unsigned(s_GhostHPos, s_HPosSlow'length));
-			s_VPosSlow <= std_logic_vector(to_unsigned(s_GhostVPos, s_VPosSlow'length));
 		end if;
 	end process;
-	s_RAMIn <= s_VPosSlow & s_HPosSlow;
 
-	draw : process(p_VGAClock, p_Reset)
+	draw : process(p_Clock, p_Reset)
 	begin
-		if (p_Reset = '1') then
-			s_Draw <= '0';
-		elsif (rising_edge(p_VGAClock)) then
+		if p_Reset = '1' then
+			s_Draw       <= '0';
+			s_BitmapAddr <= (others => '0');
+			s_HOffset    <= 0;
+			s_VOffset    <= 0;
+		elsif rising_edge(p_Clock) then
 			s_HOffset <= p_HPos - to_integer(unsigned(s_RAMOut(15 downto 0)));
 			s_VOffset <= p_VPos - to_integer(unsigned(s_RAMOut(31 downto 16)));
 			if (s_HOffset >= 0 and s_HOffset < c_BITMAP_WIDTH and s_VOffset >= 0 and s_VOffset < c_BITMAP_WIDTH) then

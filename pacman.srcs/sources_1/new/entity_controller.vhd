@@ -12,40 +12,19 @@ use IEEE.NUMERIC_STD.ALL;
 
 entity entity_controller is
 	Port(
-		p_VGAClock   : in  std_logic;
-		p_GameClock  : in  std_logic;
-		p_Reset      : in  std_logic;
-		p_HPos       : in  integer;
-		p_VPos       : in  integer;
-		p_PlayerHPos : in  integer;
-		p_PlayerVPos : in  integer;
-		o_Color      : out std_logic_vector(2 downto 0);
-		o_Data       : out std_logic_vector(15 downto 0);
-		o_Reset      : out std_logic
+		p_Clock     : in  std_logic;
+		p_GameClock : in  std_logic;
+		p_Reset     : in  std_logic;
+		p_HPos      : in  integer;
+		p_VPos      : in  integer;
+		p_Direction : in  std_logic_vector(3 downto 0);
+		p_Changed   : in  std_logic;
+		o_Color     : out std_logic_vector(2 downto 0);
+		o_Data      : out std_logic_vector(15 downto 0)
 	);
 end entity_controller;
 
 architecture Behavioral of entity_controller is
-
-	signal s_DrawMargin : std_logic_vector(3 downto 0);
-
-	signal s_DrawRectangle : std_logic_vector(9 downto 0);
-
-	signal s_DrawPlayer   : std_logic := '0';
-	signal s_EnablePlayer : std_logic := '0';
-
-	signal s_DrawFood   : std_logic_vector(21 downto 0);
-	signal s_EnableFood : std_logic_vector(21 downto 0);
-
-	signal s_DrawRedGhost  : std_logic := '0';
-	signal s_DrawCyanGhost : std_logic := '0';
-
-	signal s_Reset : std_logic := '0';
-
-	signal s_Color : std_logic_vector(2 downto 0);
-
-	signal s_Highscore : std_logic_vector(7 downto 0);
-	signal s_Score     : std_logic_vector(7 downto 0);
 
 	component ghost is
 		generic(
@@ -56,7 +35,7 @@ architecture Behavioral of entity_controller is
 		);
 		Port(
 			p_GameClock : in  std_logic;
-			p_VGAClock  : in  std_logic;
+			p_Clock     : in  std_logic;
 			p_Reset     : in  std_logic;
 			p_HPos      : in  integer range 0 to 65535;
 			p_VPos      : in  integer range 0 to 65535;
@@ -79,19 +58,6 @@ architecture Behavioral of entity_controller is
 		);
 	end component food;
 
-	component player
-		Port(
-			p_Clock      : in  std_logic;
-			p_Enable     : in  std_logic;
-			p_Reset      : in  std_logic;
-			p_HPos       : in  integer range 0 to 65535;
-			p_VPos       : in  integer range 0 to 65535;
-			p_PlayerHPos : in  integer range 0 to 65535;
-			p_PlayerVPos : in  integer range 0 to 65535;
-			o_Draw       : out std_logic
-		);
-	end component player;
-
 	component rectangle
 		generic(
 			g_HCORNER : integer;
@@ -107,15 +73,44 @@ architecture Behavioral of entity_controller is
 			o_Draw  : out std_logic
 		);
 	end component rectangle;
-begin
-	
-	o_Data <= s_Highscore & s_Score;
 
-	color : process(p_VGAClock, s_Reset)
+	component player
+		port(
+			p_Clock     : in  std_logic;
+			p_Reset     : in  std_logic;
+			p_Changed   : in  std_logic;
+			p_Direction : in  std_logic_vector(3 downto 0);
+			p_HPos      : in  integer range 0 to 65535;
+			p_VPos      : in  integer range 0 to 65535;
+			o_Draw      : out std_logic
+		);
+	end component player;
+
+	signal s_DrawMargin    : std_logic_vector(3 downto 0);
+	signal s_DrawRectangle : std_logic_vector(9 downto 0);
+	signal s_DrawPlayer    : std_logic := '0';
+	signal s_DrawFood      : std_logic_vector(21 downto 0);
+	signal s_DrawRedGhost  : std_logic := '0';
+	signal s_DrawCyanGhost : std_logic := '0';
+
+	signal s_EnableFood : std_logic_vector(21 downto 0);
+
+	signal s_GameOver : std_logic := '0';
+
+	signal s_Color : std_logic_vector(2 downto 0);
+	signal s_Highscore : std_logic_vector(7 downto 0);
+	signal s_Score     : std_logic_vector(7 downto 0);
+
+begin
+
+	o_Data <= s_Highscore & s_Score;
+	o_Color <= s_Color;
+
+	color : process(p_Clock, p_Reset)
 	begin
-		if (s_Reset = '1') then
+		if (p_Reset = '1') then
 			s_Color <= "000";
-		elsif (rising_edge(p_VGAClock)) then
+		elsif (rising_edge(p_Clock)) then
 			if (s_DrawMargin /= "0000" or s_DrawRectangle /= "0000000000") then
 				s_Color <= "001";
 			elsif (s_DrawCyanGhost = '1') then
@@ -131,62 +126,45 @@ begin
 			end if;
 		end if;
 	end process;
-	o_Color <= s_Color;
 
-	-- Detect Eat
-	detectEat : process(p_VGAClock, s_Reset)
+	detectEat : process(p_Clock, p_Reset)
 	begin
-		if (s_Reset = '1') then
-			s_Score      <= (others => '0');
+		if p_Reset = '1' then
 			s_EnableFood <= (others => '1');
-		elsif (rising_edge(p_VGAClock)) then
-			for i in 0 to 21 loop
-				if (s_DrawFood(i) = '1' AND s_DrawPlayer = '1') then
-					s_EnableFood(i) <= '0';
-					s_Score         <= std_logic_vector(unsigned(s_Score) + 1);
-				end if;
-			end loop;
-		end if;
-	end process;
-
-	highscore : process (p_VGAClock, s_Reset) is
-	begin
-		if s_Reset = '1' then
-			s_Highscore <= (others => '0');
-		elsif rising_edge(p_VGAClock) then
-			if to_integer(unsigned(s_Score)) > to_integer(unsigned(s_Highscore)) then
-				s_Highscore <= s_Score;
-			end if;
-		end if;
-	end process highscore;
-	
-
-	-- Detect Spook
-	detectSpook : process(p_VGAClock, s_Reset)
-	begin
-		if (s_Reset = '1') then
-			s_EnablePlayer <= '1';
-		elsif (rising_edge(p_VGAClock)) then
-			if (s_DrawPlayer = '1' AND (s_DrawCyanGhost = '1' OR s_DrawRedGhost = '1')) then
-				s_EnablePlayer <= '0';
-			end if;
-		end if;
-	end process;
-
-	-- Game Check
-	gameCheck : process(p_VGAClock, p_Reset)
-	begin
-		if (p_Reset = '1') then
-			s_Reset <= '1';
-		elsif (rising_edge(p_VGAClock)) then
-			if (s_EnableFood = "0000000000000000000000" or s_EnablePlayer = '0') then
-				s_Reset <= '1';
+			s_Score      <= (others => '0');
+			s_Highscore  <= (others => '0');
+		elsif rising_edge(p_Clock) then
+			if s_GameOver = '1' then
+				s_Score      <= (others => '0');
+				s_EnableFood <= (others => '1');
 			else
-				s_Reset <= '0';
+				if to_integer(unsigned(s_Score)) > to_integer(unsigned(s_Highscore)) then
+					s_Highscore <= s_Score;
+				end if;
+				for i in 0 to 21 loop
+					if (s_DrawFood(i) = '1' AND s_DrawPlayer = '1') then
+						s_EnableFood(i) <= '0';
+						s_Score         <= std_logic_vector(unsigned(s_Score) + 1);
+					end if;
+				end loop;
 			end if;
 		end if;
 	end process;
-	o_Reset <= s_Reset;
+
+	gameCheck : process(p_Clock, p_Reset)
+	begin
+		if p_Reset = '1' then
+			s_GameOver <= '0';
+		elsif rising_edge(p_Clock) then
+			if s_EnableFood = "0000000000000000000000" then
+				s_GameOver <= '1';
+			elsif s_DrawPlayer = '1' AND (s_DrawCyanGhost = '1' OR s_DrawRedGhost = '1') then
+				s_GameOver <= '1';
+			else
+				s_GameOver <= '0';
+			end if;
+		end if;
+	end process;
 
 	RED_GHOST : ghost
 		generic map(
@@ -197,7 +175,7 @@ begin
 		)
 		Port map(
 			p_GameClock => p_GameClock,
-			p_VGAClock  => p_VGAClock,
+			p_Clock     => p_Clock,
 			p_Reset     => p_Reset,
 			p_HPos      => p_HPos,
 			p_VPos      => p_VPos,
@@ -213,7 +191,7 @@ begin
 		)
 		Port map(
 			p_GameClock => p_GameClock,
-			p_VGAClock  => p_VGAClock,
+			p_Clock     => p_Clock,
 			p_Reset     => p_Reset,
 			p_HPos      => p_HPos,
 			p_VPos      => p_VPos,
@@ -228,7 +206,7 @@ begin
 			g_HEIGHT  => 10
 		)
 		Port map(
-			p_Clock => p_VGAClock,
+			p_Clock => p_Clock,
 			p_Reset => p_Reset,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
@@ -243,7 +221,7 @@ begin
 			g_HEIGHT  => 410
 		)
 		Port map(
-			p_Clock => p_VGAClock,
+			p_Clock => p_Clock,
 			p_Reset => p_Reset,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
@@ -258,7 +236,7 @@ begin
 			g_HEIGHT  => 10
 		)
 		Port map(
-			p_Clock => p_VGAClock,
+			p_Clock => p_Clock,
 			p_Reset => p_Reset,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
@@ -273,7 +251,7 @@ begin
 			g_HEIGHT  => 410
 		)
 		Port map(
-			p_Clock => p_VGAClock,
+			p_Clock => p_Clock,
 			p_Reset => p_Reset,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
@@ -288,7 +266,7 @@ begin
 			g_HEIGHT  => 60
 		)
 		Port map(
-			p_Clock => p_VGAClock,
+			p_Clock => p_Clock,
 			p_Reset => p_Reset,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
@@ -303,7 +281,7 @@ begin
 			g_HEIGHT  => 60
 		)
 		Port map(
-			p_Clock => p_VGAClock,
+			p_Clock => p_Clock,
 			p_Reset => p_Reset,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
@@ -318,7 +296,7 @@ begin
 			g_HEIGHT  => 120
 		)
 		Port map(
-			p_Clock => p_VGAClock,
+			p_Clock => p_Clock,
 			p_Reset => p_Reset,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
@@ -333,7 +311,7 @@ begin
 			g_HEIGHT  => 41
 		)
 		Port map(
-			p_Clock => p_VGAClock,
+			p_Clock => p_Clock,
 			p_Reset => p_Reset,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
@@ -348,7 +326,7 @@ begin
 			g_HEIGHT  => 120
 		)
 		Port map(
-			p_Clock => p_VGAClock,
+			p_Clock => p_Clock,
 			p_Reset => p_Reset,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
@@ -363,7 +341,7 @@ begin
 			g_HEIGHT  => 41
 		)
 		Port map(
-			p_Clock => p_VGAClock,
+			p_Clock => p_Clock,
 			p_Reset => p_Reset,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
@@ -378,7 +356,7 @@ begin
 			g_HEIGHT  => 80
 		)
 		Port map(
-			p_Clock => p_VGAClock,
+			p_Clock => p_Clock,
 			p_Reset => p_Reset,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
@@ -393,7 +371,7 @@ begin
 			g_HEIGHT  => 60
 		)
 		Port map(
-			p_Clock => p_VGAClock,
+			p_Clock => p_Clock,
 			p_Reset => p_Reset,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
@@ -408,7 +386,7 @@ begin
 			g_HEIGHT  => 61
 		)
 		Port map(
-			p_Clock => p_VGAClock,
+			p_Clock => p_Clock,
 			p_Reset => p_Reset,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
@@ -423,7 +401,7 @@ begin
 			g_HEIGHT  => 60
 		)
 		Port map(
-			p_Clock => p_VGAClock,
+			p_Clock => p_Clock,
 			p_Reset => p_Reset,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
@@ -431,15 +409,14 @@ begin
 		);
 
 	c_PLAYER : player
-		Port map(
-			p_Clock      => p_VGAClock,
-			p_Enable     => s_EnablePlayer,
-			p_Reset      => p_Reset,
-			p_HPos       => p_HPos,
-			p_VPos       => p_VPos,
-			p_PlayerHPos => p_PlayerHPos,
-			p_PlayerVPos => p_PlayerVPos,
-			o_Draw       => s_DrawPlayer
+		port map(
+			p_Clock     => p_Clock,
+			p_Reset     => p_Reset,
+			p_Changed   => p_Changed,
+			p_Direction => p_Direction,
+			p_HPos      => p_HPos,
+			p_VPos      => p_VPos,
+			o_Draw      => s_DrawPlayer
 		);
 
 	-- First Line
@@ -449,7 +426,7 @@ begin
 			g_VINIT => 40
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(0),
 			p_HPos   => p_HPos,
@@ -463,7 +440,7 @@ begin
 			g_VINIT => 40
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(1),
 			p_HPos   => p_HPos,
@@ -477,7 +454,7 @@ begin
 			g_VINIT => 40
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(2),
 			p_HPos   => p_HPos,
@@ -491,7 +468,7 @@ begin
 			g_VINIT => 40
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(3),
 			p_HPos   => p_HPos,
@@ -505,7 +482,7 @@ begin
 			g_VINIT => 40
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(4),
 			p_HPos   => p_HPos,
@@ -520,7 +497,7 @@ begin
 			g_VINIT => 140
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(5),
 			p_HPos   => p_HPos,
@@ -534,7 +511,7 @@ begin
 			g_VINIT => 140
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(6),
 			p_HPos   => p_HPos,
@@ -548,7 +525,7 @@ begin
 			g_VINIT => 140
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(7),
 			p_HPos   => p_HPos,
@@ -562,7 +539,7 @@ begin
 			g_VINIT => 140
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(8),
 			p_HPos   => p_HPos,
@@ -576,7 +553,7 @@ begin
 			g_VINIT => 140
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(9),
 			p_HPos   => p_HPos,
@@ -591,7 +568,7 @@ begin
 			g_VINIT => 220
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(10),
 			p_HPos   => p_HPos,
@@ -605,7 +582,7 @@ begin
 			g_VINIT => 220
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(11),
 			p_HPos   => p_HPos,
@@ -619,7 +596,7 @@ begin
 			g_VINIT => 220
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(12),
 			p_HPos   => p_HPos,
@@ -633,7 +610,7 @@ begin
 			g_VINIT => 220
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(13),
 			p_HPos   => p_HPos,
@@ -648,7 +625,7 @@ begin
 			g_VINIT => 300
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(14),
 			p_HPos   => p_HPos,
@@ -662,7 +639,7 @@ begin
 			g_VINIT => 300
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(15),
 			p_HPos   => p_HPos,
@@ -676,7 +653,7 @@ begin
 			g_VINIT => 300
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(16),
 			p_HPos   => p_HPos,
@@ -690,7 +667,7 @@ begin
 			g_VINIT => 300
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(17),
 			p_HPos   => p_HPos,
@@ -705,7 +682,7 @@ begin
 			g_VINIT => 400
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(18),
 			p_HPos   => p_HPos,
@@ -719,7 +696,7 @@ begin
 			g_VINIT => 400
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(19),
 			p_HPos   => p_HPos,
@@ -733,7 +710,7 @@ begin
 			g_VINIT => 400
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(20),
 			p_HPos   => p_HPos,
@@ -747,7 +724,7 @@ begin
 			g_VINIT => 400
 		)
 		Port map(
-			p_Clock  => p_VGAClock,
+			p_Clock  => p_Clock,
 			p_Reset  => p_Reset,
 			p_Enable => s_EnableFood(21),
 			p_HPos   => p_HPos,
