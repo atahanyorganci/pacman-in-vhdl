@@ -54,3 +54,10 @@ the project with Vivado from a local copy. To build the project clone the reposi
 [project file](../pacman.xpr) located in root of the repository as an existing project. Then,
 generate bitstream with the local copy. If you have downloaded the project's precompiled binary file
 connect your board and using Hardware Manager program your board.
+
+### How to Play
+
+After the board is programmed connect to the serial port used by the port. Programs such as
+[Putty](https://putty.org/), and [Docklight](https://docklight.de/) can be used to communicate with
+the board. After connecting to the serial port using ASCII codes of lower case WASD characters the
+player can move up, right, down, and left respectively.
