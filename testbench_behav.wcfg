@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wave_config>
+   <wave_state>
+   </wave_state>
+   <db_ref_list>
+      <db_ref path="testbench_behav.wdb" id="1">
+         <top_modules>
+            <top_module name="glbl" />
+            <top_module name="testbench" />
+         </top_modules>
+      </db_ref>
+   </db_ref_list>
+   <zoom_setting>
+      <ZoomStartTime time="2718163641198fs"></ZoomStartTime>
+      <ZoomEndTime time="5456367271761fs"></ZoomEndTime>
+      <Cursor1Time time="5000000000000fs"></Cursor1Time>
+   </zoom_setting>
+   <column_width_setting>
+      <NameColumnWidth column_width="175"></NameColumnWidth>
+      <ValueColumnWidth column_width="120"></ValueColumnWidth>
+   </column_width_setting>
+   <WVObjectSize size="10" />
+   <wvobject fp_name="/testbench/s_TickCount" type="other">
+      <obj_property name="ElementShortName">s_TickCount</obj_property>
+      <obj_property name="ObjectShortName">s_TickCount</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/s_Index" type="other">
+      <obj_property name="ElementShortName">s_Index</obj_property>
+      <obj_property name="ObjectShortName">s_Index</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/s_DataCount" type="other">
+      <obj_property name="ElementShortName">s_DataCount</obj_property>
+      <obj_property name="ObjectShortName">s_DataCount</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/s_Clock" type="logic">
+      <obj_property name="ElementShortName">s_Clock</obj_property>
+      <obj_property name="ObjectShortName">s_Clock</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/s_Reset" type="logic">
+      <obj_property name="ElementShortName">s_Reset</obj_property>
+      <obj_property name="ObjectShortName">s_Reset</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/my_io/p_Rx" type="logic">
+      <obj_property name="ElementShortName">p_Rx</obj_property>
+      <obj_property name="ObjectShortName">p_Rx</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/my_io/o_Direction" type="array">
+      <obj_property name="ElementShortName">o_Direction[3:0]</obj_property>
+      <obj_property name="ObjectShortName">o_Direction[3:0]</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/my_io/o_Changed" type="logic">
+      <obj_property name="ElementShortName">o_Changed</obj_property>
+      <obj_property name="ObjectShortName">o_Changed</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/my_player/s_PlayerH" type="other">
+      <obj_property name="ElementShortName">s_PlayerH</obj_property>
+      <obj_property name="ObjectShortName">s_PlayerH</obj_property>
+   </wvobject>
+   <wvobject fp_name="/testbench/my_player/s_PlayerV" type="other">
+      <obj_property name="ElementShortName">s_PlayerV</obj_property>
+      <obj_property name="ObjectShortName">s_PlayerV</obj_property>
+   </wvobject>
+</wave_config>

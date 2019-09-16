@@ -28,12 +28,16 @@ end main;
 architecture Behavioral of main is
 
 	component io
+		generic(
+			g_BAUD_RATE  : integer;
+			g_CLOCK_FREQ : integer
+		);
 		port(
 			p_Clock     : in  std_logic;
 			p_Reset     : in  std_logic;
 			p_Rx        : in  std_logic;
 			o_Clock     : out std_logic;
-			o_Changed   : out std_logic;
+			o_Move      : out std_logic;
 			o_Direction : out std_logic_vector(3 downto 0)
 		);
 	end component io;
@@ -55,7 +59,7 @@ architecture Behavioral of main is
 			p_HPos      : in  integer;
 			p_VPos      : in  integer;
 			p_Direction : in  std_logic_vector(3 downto 0);
-			p_Changed   : in  std_logic;
+			p_Move      : in  std_logic;
 			o_Color     : out std_logic_vector(2 downto 0);
 			o_Data      : out std_logic_vector(15 downto 0)
 		);
@@ -87,6 +91,10 @@ architecture Behavioral of main is
 		);
 	end component;
 
+	-- Constants
+	constant c_CLOCK_FREQ : integer := 40_000_000;
+	constant c_BAUD_RATE  : integer := 9600;
+
 	-- Clock Driver Output
 	signal s_GameClock : std_logic;
 
@@ -105,7 +113,7 @@ architecture Behavioral of main is
 	signal s_VPos : integer := 0;
 
 	-- IO
-	signal s_Changed   : std_logic;
+	signal s_Move      : std_logic;
 	signal s_Direction : std_logic_vector(3 downto 0);
 
 begin
@@ -127,14 +135,14 @@ begin
 			p_HPos      => s_HPos,
 			p_VPos      => s_VPos,
 			p_Direction => s_Direction,
-			p_Changed   => s_Changed,
+			p_Move      => s_Move,
 			o_Color     => s_Color,
 			o_Data      => s_Score
 		);
 
 	my_ssd : ssd_controller
 		generic map(
-			g_CLOCK_FREQ => 40_000_000
+			g_CLOCK_FREQ => c_CLOCK_FREQ
 		)
 		Port map(
 			p_Reset   => s_Reset,
@@ -145,12 +153,16 @@ begin
 		);
 
 	my_io : io
+		generic map(
+			g_BAUD_RATE  => c_BAUD_RATE,
+			g_CLOCK_FREQ => c_CLOCK_FREQ
+		)
 		port map(
 			p_Clock     => s_VGAClock,
 			p_Reset     => s_Reset,
 			p_Rx        => RX,
 			o_Clock     => s_GameClock,
-			o_Changed   => s_Changed,
+			o_Move      => s_Move,
 			o_Direction => s_Direction
 		);
 

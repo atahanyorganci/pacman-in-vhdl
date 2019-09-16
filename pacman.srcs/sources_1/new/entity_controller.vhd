@@ -18,7 +18,7 @@ entity entity_controller is
 		p_HPos      : in  integer;
 		p_VPos      : in  integer;
 		p_Direction : in  std_logic_vector(3 downto 0);
-		p_Changed   : in  std_logic;
+		p_Move      : in  std_logic;
 		o_Color     : out std_logic_vector(2 downto 0);
 		o_Data      : out std_logic_vector(15 downto 0)
 	);
@@ -78,7 +78,7 @@ architecture Behavioral of entity_controller is
 		port(
 			p_Clock     : in  std_logic;
 			p_Reset     : in  std_logic;
-			p_Changed   : in  std_logic;
+			p_Move      : in  std_logic;
 			p_Direction : in  std_logic_vector(3 downto 0);
 			p_HPos      : in  integer range 0 to 65535;
 			p_VPos      : in  integer range 0 to 65535;
@@ -97,13 +97,13 @@ architecture Behavioral of entity_controller is
 
 	signal s_GameOver : std_logic := '0';
 
-	signal s_Color : std_logic_vector(2 downto 0);
+	signal s_Color     : std_logic_vector(2 downto 0);
 	signal s_Highscore : std_logic_vector(7 downto 0);
 	signal s_Score     : std_logic_vector(7 downto 0);
 
 begin
 
-	o_Data <= s_Highscore & s_Score;
+	o_Data  <= s_Score & s_Highscore;
 	o_Color <= s_Color;
 
 	color : process(p_Clock, p_Reset)
@@ -154,7 +154,7 @@ begin
 	gameCheck : process(p_Clock, p_Reset)
 	begin
 		if p_Reset = '1' then
-			s_GameOver <= '0';
+			s_GameOver <= '1';
 		elsif rising_edge(p_Clock) then
 			if s_EnableFood = "0000000000000000000000" then
 				s_GameOver <= '1';
@@ -176,7 +176,7 @@ begin
 		Port map(
 			p_GameClock => p_GameClock,
 			p_Clock     => p_Clock,
-			p_Reset     => p_Reset,
+			p_Reset     => s_GameOver,
 			p_HPos      => p_HPos,
 			p_VPos      => p_VPos,
 			o_Draw      => s_DrawRedGhost
@@ -192,7 +192,7 @@ begin
 		Port map(
 			p_GameClock => p_GameClock,
 			p_Clock     => p_Clock,
-			p_Reset     => p_Reset,
+			p_Reset     => s_GameOver,
 			p_HPos      => p_HPos,
 			p_VPos      => p_VPos,
 			o_Draw      => s_DrawCyanGhost
@@ -207,7 +207,7 @@ begin
 		)
 		Port map(
 			p_Clock => p_Clock,
-			p_Reset => p_Reset,
+			p_Reset => s_GameOver,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
 			o_Draw  => s_DrawMargin(0)
@@ -222,7 +222,7 @@ begin
 		)
 		Port map(
 			p_Clock => p_Clock,
-			p_Reset => p_Reset,
+			p_Reset => s_GameOver,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
 			o_Draw  => s_DrawMargin(1)
@@ -237,7 +237,7 @@ begin
 		)
 		Port map(
 			p_Clock => p_Clock,
-			p_Reset => p_Reset,
+			p_Reset => s_GameOver,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
 			o_Draw  => s_DrawMargin(2)
@@ -252,7 +252,7 @@ begin
 		)
 		Port map(
 			p_Clock => p_Clock,
-			p_Reset => p_Reset,
+			p_Reset => s_GameOver,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
 			o_Draw  => s_DrawMargin(3)
@@ -267,7 +267,7 @@ begin
 		)
 		Port map(
 			p_Clock => p_Clock,
-			p_Reset => p_Reset,
+			p_Reset => s_GameOver,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
 			o_Draw  => s_DrawRectangle(0)
@@ -282,7 +282,7 @@ begin
 		)
 		Port map(
 			p_Clock => p_Clock,
-			p_Reset => p_Reset,
+			p_Reset => s_GameOver,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
 			o_Draw  => s_DrawRectangle(1)
@@ -297,7 +297,7 @@ begin
 		)
 		Port map(
 			p_Clock => p_Clock,
-			p_Reset => p_Reset,
+			p_Reset => s_GameOver,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
 			o_Draw  => s_DrawRectangle(2)
@@ -312,7 +312,7 @@ begin
 		)
 		Port map(
 			p_Clock => p_Clock,
-			p_Reset => p_Reset,
+			p_Reset => s_GameOver,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
 			o_Draw  => s_DrawRectangle(3)
@@ -327,7 +327,7 @@ begin
 		)
 		Port map(
 			p_Clock => p_Clock,
-			p_Reset => p_Reset,
+			p_Reset => s_GameOver,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
 			o_Draw  => s_DrawRectangle(4)
@@ -342,7 +342,7 @@ begin
 		)
 		Port map(
 			p_Clock => p_Clock,
-			p_Reset => p_Reset,
+			p_Reset => s_GameOver,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
 			o_Draw  => s_DrawRectangle(5)
@@ -357,7 +357,7 @@ begin
 		)
 		Port map(
 			p_Clock => p_Clock,
-			p_Reset => p_Reset,
+			p_Reset => s_GameOver,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
 			o_Draw  => s_DrawRectangle(6)
@@ -372,7 +372,7 @@ begin
 		)
 		Port map(
 			p_Clock => p_Clock,
-			p_Reset => p_Reset,
+			p_Reset => s_GameOver,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
 			o_Draw  => s_DrawRectangle(7)
@@ -387,7 +387,7 @@ begin
 		)
 		Port map(
 			p_Clock => p_Clock,
-			p_Reset => p_Reset,
+			p_Reset => s_GameOver,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
 			o_Draw  => s_DrawRectangle(8)
@@ -402,7 +402,7 @@ begin
 		)
 		Port map(
 			p_Clock => p_Clock,
-			p_Reset => p_Reset,
+			p_Reset => s_GameOver,
 			p_HPos  => p_HPos,
 			p_VPos  => p_VPos,
 			o_Draw  => s_DrawRectangle(9)
@@ -411,8 +411,8 @@ begin
 	c_PLAYER : player
 		port map(
 			p_Clock     => p_Clock,
-			p_Reset     => p_Reset,
-			p_Changed   => p_Changed,
+			p_Reset     => s_GameOver,
+			p_Move      => p_Move,
 			p_Direction => p_Direction,
 			p_HPos      => p_HPos,
 			p_VPos      => p_VPos,
@@ -427,7 +427,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(0),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -441,7 +441,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(1),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -455,7 +455,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(2),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -469,7 +469,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(3),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -483,7 +483,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(4),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -498,7 +498,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(5),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -512,7 +512,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(6),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -526,7 +526,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(7),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -540,7 +540,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(8),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -554,7 +554,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(9),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -569,7 +569,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(10),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -583,7 +583,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(11),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -597,7 +597,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(12),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -611,7 +611,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(13),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -626,7 +626,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(14),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -640,7 +640,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(15),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -654,7 +654,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(16),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -668,7 +668,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(17),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -683,7 +683,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(18),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -697,7 +697,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(19),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -711,7 +711,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(20),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
@@ -725,7 +725,7 @@ begin
 		)
 		Port map(
 			p_Clock  => p_Clock,
-			p_Reset  => p_Reset,
+			p_Reset  => s_GameOver,
 			p_Enable => s_EnableFood(21),
 			p_HPos   => p_HPos,
 			p_VPos   => p_VPos,
