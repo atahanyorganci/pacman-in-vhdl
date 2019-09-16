@@ -106,7 +106,6 @@ architecture Behavioral of main is
 	-- Entity Controller Output
 	signal s_Color     : std_logic_vector(2 downto 0);
 	signal s_Score     : std_logic_vector(15 downto 0);
-	signal s_GameReset : std_logic;
 
 	-- VGA Driver Output
 	signal s_HPos : integer := 0;
@@ -169,7 +168,7 @@ begin
 	my_vga : vga_driver
 		Port map(
 			p_Clock    => s_VGAClock,
-			p_Reset    => s_GameReset,
+			p_Reset    => s_Reset,
 			p_Color    => s_Color,
 			o_HPos     => s_HPos,
 			o_VPos     => s_VPos,
